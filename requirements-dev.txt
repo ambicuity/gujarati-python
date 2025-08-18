@@ -1,0 +1,20 @@
+# ગુજરાતી પાઈથન - ડેવલપમેન્ટ આવશ્યકતાઓ
+# Development dependencies for ગુજરાતી પાઈથન project
+
+# ટેસ્ટિંગ (Testing)
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# કોડ ક્વાલિટી (Code Quality)  
+flake8>=5.0.0
+black>=22.0.0
+
+# ટાઇપ ચેકિંગ (Type Checking)
+mypy>=1.0.0
+
+# ડોક્યુમેન્ટેશન (Documentation)
+# sphinx>=5.0.0  # વૈકલ્પિક
+# sphinx-rtd-theme>=1.0.0  # વૈકલ્પિક
+
+# નોંધ: આ dependencies ફક્ત ડેવલપમેન્ટ માટે જરૂરી છે
+# મુખ્ય પ્રોજેક્ટ કોઈ external dependencies વગર ચાલે છે

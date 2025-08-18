@@ -135,7 +135,7 @@ class ટેસ્ટ:
         """.strip()
         
         અપેક્ષિત = """
-import ગણિત
+import math
 from os import path
 import numpy as np
         """.strip()
