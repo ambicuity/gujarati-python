@@ -92,6 +92,23 @@ class કીવર્ડ_અનુવાદક:
             'એબ્સ': 'abs',
             'પાવર': 'pow',
             'ડિવમોડ': 'divmod',
+            'બિન': 'bin',
+            'ઓક્ટ': 'oct',
+            'હેક્સ': 'hex',
+            'ઓર્ડ': 'ord',
+            'ક્રોમ': 'chr',
+            'બૂલ': 'bool',
+            'બાઇટ્સ': 'bytes',
+            'બાઇટઆરે': 'bytearray',
+            'કોમ્પ્લેક્સ': 'complex',
+            'ફ્રોઝનસેટ': 'frozenset',
+            'મેમરીવ્યુ': 'memoryview',
+            'ઓબ્જેક્ટ': 'object',
+            'પ્રોપર્ટી': 'property',
+            'સ્લાઇસ': 'slice',
+            'સુપર': 'super',
+            'સ્ટેટિકમેથડ': 'staticmethod',
+            'ક્લાસમેથડ': 'classmethod',
             
             # સામાન્ય મોડ્યુલ નામો - ફક્ત imports માં
             # આને અલગ category માં મૂકવા જોઈએ
@@ -161,23 +178,27 @@ class કીવર્ડ_અનુવાદક:
             પેટર્ન = r'\b' + re.escape(ગુજ_મોડ) + r'\.'
             અનુવાદિત_કોડ = re.sub(પેટર્ન, ઇંગ_મોડ + '.', અનુવાદિત_કોડ)
         
-        # હવે સ્ટ્રિંગ લિટરલ્સને પ્રોટેક્ટ કરો (ફક્ત string content માટે, keywords માટે નહીં)
-        # આ એક સરળ અપ્રોચ છે જે ફક્ત સાદા string literals ને protect કરે છે
+        # હવે સ્ટ્રિંગ લિટરલ્સને પ્રોટેક્ટ કરો (ફક્ત સાદા strings માટે)
+        # f-strings અને triple quotes ને વધુ સાવચેતીથી handle કરો
         સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ = {}
         પ્લેસહોલ્ડર_કાઉન્ટર = 0
         
-        # ફક્ત સાદા quoted strings protect કરો, f-strings નહીં
-        # f-strings માં variables અને expressions translate થવા જોઈએ
-        ક્વોટ_પેટર્ન્સ = [
-            r'(?<!f)"([^"]*)"',  # Double quotes not preceded by f
-            r"(?<!f)'([^']*)'",  # Single quotes not preceded by f
+        # ફક્ત single અને double quoted simple strings protect કરો
+        # આ f-strings અને expressions ને translate થવા દે છે
+        સ્ટ્રિંગ_પેટર્ન્સ = [
+            (r'"""([^"]*)"""', 'triple_double'),      # Triple double quotes
+            (r"'''([^']*)'''", 'triple_single'),      # Triple single quotes  
+            (r'(?<!f)"([^"\\]*(\\.[^"\\]*)*)"', 'double'),    # Double quotes not preceded by f
+            (r"(?<!f)'([^'\\]*(\\.[^'\\]*)*)'", 'single'),    # Single quotes not preceded by f
         ]
         
-        for પેટર્ન in ક્વોટ_પેટર્ન્સ:
-            matches = re.finditer(પેટર્ન, અનુવાદિત_કોડ)
-            for match in reversed(list(matches)):  # Reverse to maintain positions
+        # પ્રોટેક્ટ string literals (પરંતુ f-strings નહીં)
+        for પેટર્ન, quote_type in સ્ટ્રિંગ_પેટર્ન્સ:
+            matches = list(re.finditer(પેટર્ન, અનુવાદિત_કોડ, re.DOTALL))
+            # Reverse order માટે position corruption ટાળવું
+            for match in reversed(matches):
                 સ્ટ્રિંગ_કન્ટેન્ટ = match.group(0)
-                પ્લેસહોલ્ડર = f"__STRING_PLACEHOLDER_{પ્લેસહોલ્ડર_કાઉન્ટર}__"
+                પ્લેસહોલ્ડર = f"__STR_{quote_type}_{પ્લેસહોલ્ડર_કાઉન્ટર}__"
                 સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ[પ્લેસહોલ્ડર] = સ્ટ્રિંગ_કન્ટેન્ટ
                 અનુવાદિત_કોડ = અનુવાદિત_કોડ[:match.start()] + પ્લેસહોલ્ડર + અનુવાદિત_કોડ[match.end():]
                 પ્લેસહોલ્ડર_કાઉન્ટર += 1
@@ -189,8 +210,8 @@ class કીવર્ડ_અનુવાદક:
             અંગ્રેજી_કીવર્ડ = self.કીવર્ડ_મેપ[ગુજરાતી_કીવર્ડ]
             
             # વર્ડ બાઉન્ડરી આધારિત રિપ્લેસમેન્ટ
-            # ગુજરાતી ટેક્સ્ટ માટે કસ્ટમ બાઉન્ડરી લોજિક
-            પેટર્ન = r'(?<![એ-હ])'+ re.escape(ગુજરાતી_કીવર્ડ) + r'(?![એ-હ])'
+            # સિંપલ વર્ડ બાઉન્ડરી pattern જે બધા cases કવર કરે
+            પેટર્ન = r'(?<!\w)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?!\w)'
             અનુવાદિત_કોડ = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, અનુવાદિત_કોડ)
         
         # સ્ટ્રિંગ પ્લેસહોલ્ડર્સને વાપસ લાવો
