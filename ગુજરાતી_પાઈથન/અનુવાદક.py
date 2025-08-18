@@ -79,8 +79,43 @@ class કીવર્ડ_અનુવાદક:
             'ફિલ્ટર': 'filter',
             'ઝીપ': 'zip',
             'એન્યુમરેટ': 'enumerate',
+            'ઈનપુટ': 'input',
+            'ઈવલ': 'eval',
+            'એક્ઝેક': 'exec',
+            'કોમ્પાઇલ': 'compile',
+            'હેશ': 'hash',
+            'આઈડી': 'id',
+            'વાર્સ': 'vars',
+            'ડાઇર': 'dir',
+            'હેલ્પ': 'help',
+            'રાઉન્ડ': 'round',
+            'એબ્સ': 'abs',
+            'પાવર': 'pow',
+            'ડિવમોડ': 'divmod',
+            'બિન': 'bin',
+            'ઓક્ટ': 'oct',
+            'હેક્સ': 'hex',
+            'ઓર્ડ': 'ord',
+            'ક્રોમ': 'chr',
+            'બૂલ': 'bool',
+            'બાઇટ્સ': 'bytes',
+            'બાઇટઆરે': 'bytearray',
+            'કોમ્પ્લેક્સ': 'complex',
+            'ફ્રોઝનસેટ': 'frozenset',
+            'મેમરીવ્યુ': 'memoryview',
+            'ઓબ્જેક્ટ': 'object',
+            'પ્રોપર્ટી': 'property',
+            'સ્લાઇસ': 'slice',
+            'સુપર': 'super',
+            'સ્ટેટિકમેથડ': 'staticmethod',
+            'ક્લાસમેથડ': 'classmethod',
             
-            # સામાન્ય મોડ્યુલ નામો
+            # સામાન્ય મોડ્યુલ નામો - ફક્ત imports માં
+            # આને અલગ category માં મૂકવા જોઈએ
+        }
+        
+        # સામાન્ય મોડ્યુલ નામો - આ ફક્ત import statements માં જ translate થવા જોઈએ
+        self.મોડ્યુલ_નામ_મેપ = {
             'ગણિત': 'math',
             'રેન્ડમ': 'random',
             'અવિકલ': 'time',
@@ -91,7 +126,8 @@ class કીવર્ડ_અનુવાદક:
         }
         
         # રિવર્સ મેપિંગ (અંગ્રેજીથી ગુજરાતી)
-        self.રિવર્સ_મેપ = {v: k for k, v in self.કીવર્ડ_મેપ.items()}
+        આલ_મેપ = {**self.કીવર્ડ_મેપ, **self.મોડ્યુલ_નામ_મેપ}
+        self.રિવર્સ_મેપ = {v: k for k, v in આલ_મેપ.items()}
         
         # ઓપરેટર્સનું મેપિંગ
         self.ઓપરેટર_મેપ = {
@@ -120,16 +156,67 @@ class કીવર્ડ_અનુવાદક:
         પરત આપે:
             str: અંગ્રેજી પાઈથન કોડ
         """
+        import re  
+        
         અનુવાદિત_કોડ = કોડ
         
-        # કીવર્ડ્સનો અનુવાદ કરો (લાંબાથી નાના ક્રમમાં)
+        # પહેલા import statements અને module usages ને handle કરો
+        # કારણ કે આ string protection ની પહેલા કરવું જોઈએ
+        
+        # 1. Import statements
+        for લાઇન in અનુવાદિત_કોડ.split('\n'):
+            if લાઇન.strip().startswith('import ') or 'ઈમ્પોર્ટ' in લાઇન:
+                # import statement માં module names ટ્રાન્સલેટ કરો
+                for ગુજ_મોડ, ઇંગ_મોડ in self.મોડ્યુલ_નામ_મેપ.items():
+                    if ગુજ_મોડ in લાઇન:
+                        નવી_લાઇન = લાઇન.replace(ગુજ_મોડ, ઇંગ_મોડ)
+                        અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(લાઇન, નવી_લાઇન)
+        
+        # 2. Module usage (ગણિત.sqrt) ને translate કરો - string protection પહેલા
+        for ગુજ_મોડ, ઇંગ_મોડ in self.મોડ્યુલ_નામ_મેપ.items():
+            # ફક્ત module.function pattern માં translate કરો
+            પેટર્ન = r'\b' + re.escape(ગુજ_મોડ) + r'\.'
+            અનુવાદિત_કોડ = re.sub(પેટર્ન, ઇંગ_મોડ + '.', અનુવાદિત_કોડ)
+        
+        # હવે સ્ટ્રિંગ લિટરલ્સને પ્રોટેક્ટ કરો (ફક્ત સાદા strings માટે)
+        # f-strings અને triple quotes ને વધુ સાવચેતીથી handle કરો
+        સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ = {}
+        પ્લેસહોલ્ડર_કાઉન્ટર = 0
+        
+        # ફક્ત single અને double quoted simple strings protect કરો
+        # આ f-strings અને expressions ને translate થવા દે છે
+        સ્ટ્રિંગ_પેટર્ન્સ = [
+            (r'"""([^"]*)"""', 'triple_double'),      # Triple double quotes
+            (r"'''([^']*)'''", 'triple_single'),      # Triple single quotes  
+            (r'(?<!f)"([^"\\]*(\\.[^"\\]*)*)"', 'double'),    # Double quotes not preceded by f
+            (r"(?<!f)'([^'\\]*(\\.[^'\\]*)*)'", 'single'),    # Single quotes not preceded by f
+        ]
+        
+        # પ્રોટેક્ટ string literals (પરંતુ f-strings નહીં)
+        for પેટર્ન, quote_type in સ્ટ્રિંગ_પેટર્ન્સ:
+            matches = list(re.finditer(પેટર્ન, અનુવાદિત_કોડ, re.DOTALL))
+            # Reverse order માટે position corruption ટાળવું
+            for match in reversed(matches):
+                સ્ટ્રિંગ_કન્ટેન્ટ = match.group(0)
+                પ્લેસહોલ્ડર = f"__STR_{quote_type}_{પ્લેસહોલ્ડર_કાઉન્ટર}__"
+                સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ[પ્લેસહોલ્ડર] = સ્ટ્રિંગ_કન્ટેન્ટ
+                અનુવાદિત_કોડ = અનુવાદિત_કોડ[:match.start()] + પ્લેસહોલ્ડર + અનુવાદિત_કોડ[match.end():]
+                પ્લેસહોલ્ડર_કાઉન્ટર += 1
+        
+        # હવે બાકીના કીવર્ડ્સનો અનુવાદ કરો (લાંબાથી નાના ક્રમમાં)
         કીવર્ડ_લિસ્ટ = sorted(self.કીવર્ડ_મેપ.keys(), key=len, reverse=True)
         
         for ગુજરાતી_કીવર્ડ in કીવર્ડ_લિસ્ટ:
             અંગ્રેજી_કીવર્ડ = self.કીવર્ડ_મેપ[ગુજરાતી_કીવર્ડ]
             
-            # સિંપલ સ્ટ્રિંગ રિપ્લેસમેન્ટ - વધુ રિલાયેબલ
-            અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(ગુજરાતી_કીવર્ડ, અંગ્રેજી_કીવર્ડ)
+            # વર્ડ બાઉન્ડરી આધારિત રિપ્લેસમેન્ટ
+            # સિંપલ વર્ડ બાઉન્ડરી pattern જે બધા cases કવર કરે
+            પેટર્ન = r'(?<!\w)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?!\w)'
+            અનુવાદિત_કોડ = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, અનુવાદિત_કોડ)
+        
+        # સ્ટ્રિંગ પ્લેસહોલ્ડર્સને વાપસ લાવો
+        for પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ in સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ.items():
+            અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ)
         
         return અનુવાદિત_કોડ
     
