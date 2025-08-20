@@ -6,9 +6,7 @@
 """
 
 import re
-import keyword
-from typing import Dict, List, Tuple
-
+from typing import List
 
 class કીવર્ડ_અનુવાદક:
     """
@@ -161,8 +159,6 @@ class કીવર્ડ_અનુવાદક:
         અનુવાદિત_કોડ = કોડ
         
         # પહેલા import statements અને module usages ને handle કરો
-        # કારણ કે આ string protection ની પહેલા કરવું જોઈએ
-        
         # 1. Import statements
         for લાઇન in અનુવાદિત_કોડ.split('\n'):
             if લાઇન.strip().startswith('import ') or 'ઈમ્પોર્ટ' in લાઇન:
@@ -172,19 +168,16 @@ class કીવર્ડ_અનુવાદક:
                         નવી_લાઇન = લાઇન.replace(ગુજ_મોડ, ઇંગ_મોડ)
                         અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(લાઇન, નવી_લાઇન)
         
-        # 2. Module usage (ગણિત.sqrt) ને translate કરો - string protection પહેલા
+        # 2. Module usage (ગણિત.sqrt) ને translate કરો
         for ગુજ_મોડ, ઇંગ_મોડ in self.મોડ્યુલ_નામ_મેપ.items():
-            # ફક્ત module.function pattern માં translate કરો
             પેટર્ન = r'\b' + re.escape(ગુજ_મોડ) + r'\.'
             અનુવાદિત_કોડ = re.sub(પેટર્ન, ઇંગ_મોડ + '.', અનુવાદિત_કોડ)
         
-        # હવે સ્ટ્રિંગ લિટરલ્સને પ્રોટેક્ટ કરો (ફક્ત સાદા strings માટે)
-        # f-strings અને triple quotes ને વધુ સાવચેતીથી handle કરો
+        # હવે સ્ટ્રિંગ લિટરલ્સને પ્રોટેક્ટ કરો (પરંતુ f-strings માં keywords translate કરવા દો)
         સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ = {}
         પ્લેસહોલ્ડર_કાઉન્ટર = 0
         
-        # ફક્ત single અને double quoted simple strings protect કરો
-        # આ f-strings અને expressions ને translate થવા દે છે
+        # ફક્ત non-f-string literals protect કરો
         સ્ટ્રિંગ_પેટર્ન્સ = [
             (r'"""([^"]*)"""', 'triple_double'),      # Triple double quotes
             (r"'''([^']*)'''", 'triple_single'),      # Triple single quotes  
@@ -203,20 +196,62 @@ class કીવર્ડ_અનુવાદક:
                 અનુવાદિત_કોડ = અનુવાદિત_કોડ[:match.start()] + પ્લેસહોલ્ડર + અનુવાદિત_કોડ[match.end():]
                 પ્લેસહોલ્ડર_કાઉન્ટર += 1
         
-        # હવે બાકીના કીવર્ડ્સનો અનુવાદ કરો (લાંબાથી નાના ક્રમમાં)
+        # હવે કીવર્ડ્સનો અનુવાદ કરો (લાંબાથી નાના ક્રમમાં) - SIMPLE APPROACH
         કીવર્ડ_લિસ્ટ = sorted(self.કીવર્ડ_મેપ.keys(), key=len, reverse=True)
         
         for ગુજરાતી_કીવર્ડ in કીવર્ડ_લિસ્ટ:
             અંગ્રેજી_કીવર્ડ = self.કીવર્ડ_મેપ[ગુજરાતી_કીવર્ડ]
             
-            # વર્ડ બાઉન્ડરી આધારિત રિપ્લેસમેન્ટ
-            # સિંપલ વર્ડ બાઉન્ડરી pattern જે બધા cases કવર કરે
-            પેટર્ન = r'(?<!\w)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?!\w)'
-            અનુવાદિત_કોડ = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, અનુવાદિત_કોડ)
+            # Use very simple and reliable word boundary replacement
+            # This works line by line to preserve indentation and structure
+            lines = અનુવાદિત_કોડ.split('\n')
+            new_lines = []
+            
+            for line in lines:
+                if ગુજરાતી_કીવર્ડ in line:
+                    # Simple word boundary replacement that preserves spacing and indentation
+                    # Allow keywords to be followed by punctuation, whitespace, or end of line
+                    પેટર્ન = r'(?<!\S)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|[(){}[\]:,]|$)'
+                    line = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, line)
+                new_lines.append(line)
+            
+            અનુવાદિત_કોડ = '\n'.join(new_lines)
         
         # સ્ટ્રિંગ પ્લેસહોલ્ડર્સને વાપસ લાવો
         for પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ in સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ.items():
             અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ)
+        
+        # Now process f-strings after main keyword translation to handle keywords in expressions
+        f_string_pattern = r'f(["\'])((?:\\.|(?!\1)[^\\])*?)\1'
+        f_strings = list(re.finditer(f_string_pattern, અનુવાદિત_કોડ))
+        
+        # Process f-strings to translate keywords in expressions
+        for match in reversed(f_strings):
+            f_string_content = match.group(2)  # Content inside quotes without f and quotes
+            quote_char = match.group(1)  # The quote character used
+            
+            # F-string expressions ({...}) શોધો
+            expr_pattern = r'\{([^}]+)\}'
+            expressions = re.findall(expr_pattern, f_string_content)
+            
+            # દરેક expression માં keywords translate કરો
+            processed_content = f_string_content
+            for expr in expressions:
+                # Expression માં keywords translate કરો (same simple approach)
+                translated_expr = expr
+                
+                for ગુજરાતી_કીવર્ડ in કીવર્ડ_લિસ્ટ:
+                    if ગુજરાતી_કીવર્ડ in translated_expr:
+                        અંગ્રેજી_કીવર્ડ = self.કીવર્ડ_મેપ[ગુજરાતી_કીવર્ડ]
+                        પેટર્ન = r'(?<!\S)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|[(){}[\]:,]|$)'
+                        translated_expr = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, translated_expr)
+                
+                # Original expression ને translated સાથે replace કરો
+                processed_content = processed_content.replace('{' + expr + '}', '{' + translated_expr + '}')
+            
+            # F-string ને completely replace કરો
+            new_f_string = f'f{quote_char}{processed_content}{quote_char}'
+            અનુવાદિત_કોડ = અનુવાદિત_કોડ[:match.start()] + new_f_string + અનુવાદિત_કોડ[match.end():]
         
         return અનુવાદિત_કોડ
     
