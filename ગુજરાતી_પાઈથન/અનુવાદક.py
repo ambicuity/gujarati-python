@@ -177,12 +177,14 @@ class કીવર્ડ_અનુવાદક:
         સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ = {}
         પ્લેસહોલ્ડર_કાઉન્ટર = 0
         
-        # ફક્ત non-f-string literals protect કરો
+        # Protect string literals (both regular strings and f-strings)
         સ્ટ્રિંગ_પેટર્ન્સ = [
-            (r'"""([^"]*)"""', 'triple_double'),      # Triple double quotes
-            (r"'''([^']*)'''", 'triple_single'),      # Triple single quotes  
-            (r'(?<!f)"([^"\\]*(\\.[^"\\]*)*)"', 'double'),    # Double quotes not preceded by f
-            (r"(?<!f)'([^'\\]*(\\.[^'\\]*)*)'", 'single'),    # Single quotes not preceded by f
+            (r'"""([^"]|"[^"]|""[^"])*"""', 'triple_double'),      # Triple double quotes
+            (r"'''([^']|'[^']|''[^'])*'''", 'triple_single'),      # Triple single quotes  
+            (r'(?<!f)"([^"\n\\]*(\\.[^"\n\\]*)*)"', 'double'),    # Double quotes not preceded by f, no newlines
+            (r"(?<!f)'([^'\n\\]*(\\.[^'\n\\]*)*)'", 'single'),    # Single quotes not preceded by f, no newlines
+            (r'f"([^"\n\\]*(\\.[^"\n\\]*)*)"', 'f_double'),       # f-strings with double quotes  
+            (r"f'([^'\n\\]*(\\.[^'\n\\]*)*)'", 'f_single'),       # f-strings with single quotes
         ]
         
         # પ્રોટેક્ટ string literals (પરંતુ f-strings નહીં)
@@ -217,43 +219,63 @@ class કીવર્ડ_અનુવાદક:
             
             અનુવાદિત_કોડ = '\n'.join(new_lines)
         
-        # સ્ટ્રિંગ પ્લેસહોલ્ડર્સને વાપસ લાવો
+        # સ્ટ્રિંગ પ્લેસહોલ્ડર્સને વાપસ લાવો, પરંતુ f-strings ને અલગથી process કરો
         for પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ in સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ.items():
-            અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ)
-        
-        # Now process f-strings after main keyword translation to handle keywords in expressions
-        f_string_pattern = r'f(["\'])((?:\\.|(?!\1)[^\\])*?)\1'
-        f_strings = list(re.finditer(f_string_pattern, અનુવાદિત_કોડ))
-        
-        # Process f-strings to translate keywords in expressions
-        for match in reversed(f_strings):
-            f_string_content = match.group(2)  # Content inside quotes without f and quotes
-            quote_char = match.group(1)  # The quote character used
-            
-            # F-string expressions ({...}) શોધો
-            expr_pattern = r'\{([^}]+)\}'
-            expressions = re.findall(expr_pattern, f_string_content)
-            
-            # દરેક expression માં keywords translate કરો
-            processed_content = f_string_content
-            for expr in expressions:
-                # Expression માં keywords translate કરો (same simple approach)
-                translated_expr = expr
-                
-                for ગુજરાતી_કીવર્ડ in કીવર્ડ_લિસ્ટ:
-                    if ગુજરાતી_કીવર્ડ in translated_expr:
-                        અંગ્રેજી_કીવર્ડ = self.કીવર્ડ_મેપ[ગુજરાતી_કીવર્ડ]
-                        પેટર્ન = r'(?<!\S)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|[(){}[\]:,]|$)'
-                        translated_expr = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, translated_expr)
-                
-                # Original expression ને translated સાથે replace કરો
-                processed_content = processed_content.replace('{' + expr + '}', '{' + translated_expr + '}')
-            
-            # F-string ને completely replace કરો
-            new_f_string = f'f{quote_char}{processed_content}{quote_char}'
-            અનુવાદિત_કોડ = અનુવાદિત_કોડ[:match.start()] + new_f_string + અનુવાદિત_કોડ[match.end():]
-        
+            if 'f_double' in પ્લેસહોલ્ડર or 'f_single' in પ્લેસહોલ્ડર:
+                # Process f-string separately
+                processed_f_string = self._process_f_string(મૂળ_સ્ટ્રિંગ, કીવર્ડ_લિસ્ટ)
+                અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(પ્લેસહોલ્ડર, processed_f_string)
+            else:
+                # Regular string - restore as-is  
+                અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ)
+
         return અનુવાદિત_કોડ
+    
+    def _process_f_string(self, f_string_content: str, કીવર્ડ_લિસ્ટ: list) -> str:
+        """
+        Process f-string by translating keywords only in expressions (inside {})
+        
+        પેરામીટર:
+            f_string_content (str): Complete f-string like f"hello {name}"
+            કીવર્ડ_લિસ્ટ (list): List of Gujarati keywords to translate
+            
+        પરત આપે:
+            str: Processed f-string with keywords translated in expressions only
+        """
+        import re
+        
+        # Extract the quote type and content
+        if f_string_content.startswith('f"'):
+            quote_char = '"'
+            content = f_string_content[2:-1]  # Remove f" and "
+        elif f_string_content.startswith("f'"):
+            quote_char = "'"
+            content = f_string_content[2:-1]  # Remove f' and '
+        else:
+            # Fallback - return as is
+            return f_string_content
+            
+        # F-string expressions ({...}) શોધો
+        expr_pattern = r'\{([^}]+)\}'
+        expressions = re.findall(expr_pattern, content)
+        
+        # દરેક expression માં keywords translate કરો
+        processed_content = content
+        for expr in expressions:
+            # Expression માં keywords translate કરો
+            translated_expr = expr
+            
+            for ગુજરાતી_કીવર્ડ in કીવર્ડ_લિસ્ટ:
+                if ગુજરાતી_કીવર્ડ in translated_expr:
+                    અંગ્રેજી_કીવર્ડ = self.કીવર્ડ_મેપ[ગુજરાતી_કીવર્ડ]
+                    પેટર્ન = r'(?<!\S)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|[(){}[\]:,]|$)'
+                    translated_expr = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, translated_expr)
+            
+            # Original expression ને translated સાથે replace કરો
+            processed_content = processed_content.replace('{' + expr + '}', '{' + translated_expr + '}')
+        
+        # Rebuild the f-string
+        return f'f{quote_char}{processed_content}{quote_char}'
     
     def અંગ્રેજીથી_ગુજરાતી(self, કોડ: str) -> str:
         """
