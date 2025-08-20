@@ -161,8 +161,6 @@ class કીવર્ડ_અનુવાદક:
         અનુવાદિત_કોડ = કોડ
         
         # પહેલા import statements અને module usages ને handle કરો
-        # કારણ કે આ string protection ની પહેલા કરવું જોઈએ
-        
         # 1. Import statements
         for લાઇન in અનુવાદિત_કોડ.split('\n'):
             if લાઇન.strip().startswith('import ') or 'ઈમ્પોર્ટ' in લાઇન:
@@ -172,9 +170,8 @@ class કીવર્ડ_અનુવાદક:
                         નવી_લાઇન = લાઇન.replace(ગુજ_મોડ, ઇંગ_મોડ)
                         અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(લાઇન, નવી_લાઇન)
         
-        # 2. Module usage (ગણિત.sqrt) ને translate કરો - string protection પહેલા
+        # 2. Module usage (ગણિત.sqrt) ને translate કરો
         for ગુજ_મોડ, ઇંગ_મોડ in self.મોડ્યુલ_નામ_મેપ.items():
-            # ફક્ત module.function pattern માં translate કરો
             પેટર્ન = r'\b' + re.escape(ગુજ_મોડ) + r'\.'
             અનુવાદિત_કોડ = re.sub(પેટર્ન, ઇંગ_મોડ + '.', અનુવાદિત_કોડ)
         
@@ -182,7 +179,7 @@ class કીવર્ડ_અનુવાદક:
         સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ = {}
         પ્લેસહોલ્ડર_કાઉન્ટર = 0
         
-        # ફક્ત non-f-string literals protect કરો પહેલા
+        # ફક્ત non-f-string literals protect કરો
         સ્ટ્રિંગ_પેટર્ન્સ = [
             (r'"""([^"]*)"""', 'triple_double'),      # Triple double quotes
             (r"'''([^']*)'''", 'triple_single'),      # Triple single quotes  
@@ -201,46 +198,26 @@ class કીવર્ડ_અનુવાદક:
                 અનુવાદિત_કોડ = અનુવાદિત_કોડ[:match.start()] + પ્લેસહોલ્ડર + અનુવાદિત_કોડ[match.end():]
                 પ્લેસહોલ્ડર_કાઉન્ટર += 1
         
-        # હવે બાકીના કીવર્ડ્સનો અનુવાદ કરો (લાંબાથી નાના ક્રમમાં)
+        # હવે કીવર્ડ્સનો અનુવાદ કરો (લાંબાથી નાના ક્રમમાં) - SIMPLE APPROACH
         કીવર્ડ_લિસ્ટ = sorted(self.કીવર્ડ_મેપ.keys(), key=len, reverse=True)
         
         for ગુજરાતી_કીવર્ડ in કીવર્ડ_લિસ્ટ:
             અંગ્રેજી_કીવર્ડ = self.કીવર્ડ_મેપ[ગુજરાતી_કીવર્ડ]
             
-            # Simple approach: use word boundaries but be more permissive
-            # This will replace the keyword when it's a complete word
-            ગુજ_એસ્કેપ = re.escape(ગુજરાતી_કીવર્ડ)
+            # Use very simple and reliable word boundary replacement
+            # This works line by line to preserve indentation and structure
+            lines = અનુવાદિત_કોડ.split('\n')
+            new_lines = []
             
-            # Replace keyword when it's surrounded by non-Gujarati characters or boundaries
-            # This pattern should work for most cases
-            પેટર્ન = r'\b' + ગુજ_એસ્કેપ + r'\b'
+            for line in lines:
+                if ગુજરાતી_કીવર્ડ in line:
+                    # Simple word boundary replacement that preserves spacing and indentation
+                    # Allow keywords to be followed by punctuation, whitespace, or end of line
+                    પેટર્ન = r'(?<!\S)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|[(){}[\]:,]|$)'
+                    line = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, line)
+                new_lines.append(line)
             
-            # Try the basic word boundary replacement first
-            new_code = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, અનુવાદિત_કોડ)
-            
-            # If no change and keyword exists, try more aggressive patterns
-            if new_code == અનુવાદિત_કોડ and ગુજરાતી_કીવર્ડ in અનુવાદિત_કોડ:
-                # Manual replacement with manual boundaries
-                lines = અનુવાદિત_કોડ.split('\n')
-                new_lines = []
-                for line in lines:
-                    if ગુજરાતી_કીવર્ડ in line:
-                        # Replace keyword when it's at word boundaries
-                        words = line.split()
-                        new_words = []
-                        for word in words:
-                            # Check if word starts with keyword
-                            if word.startswith(ગુજરાતી_કીવર્ડ):
-                                # Check if it's exactly the keyword or keyword followed by punctuation
-                                after_keyword = word[len(ગુજરાતી_કીવર્ડ):]
-                                if not after_keyword or after_keyword[0] in '(){}[],:':
-                                    word = અંગ્રેજી_કીવર્ડ + after_keyword
-                            new_words.append(word)
-                        line = ' '.join(new_words)
-                    new_lines.append(line)
-                અનુવાદિત_કોડ = '\n'.join(new_lines)
-            else:
-                અનુવાદિત_કોડ = new_code
+            અનુવાદિત_કોડ = '\n'.join(new_lines)
         
         # સ્ટ્રિંગ પ્લેસહોલ્ડર્સને વાપસ લાવો
         for પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ in સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ.items():
@@ -262,26 +239,14 @@ class કીવર્ડ_અનુવાદક:
             # દરેક expression માં keywords translate કરો
             processed_content = f_string_content
             for expr in expressions:
-                # Expression માં keywords translate કરો (same patterns as main translation)
+                # Expression માં keywords translate કરો (same simple approach)
                 translated_expr = expr
-                કીવર્ડ_લિસ્ટ = sorted(self.કીવર્ડ_મેપ.keys(), key=len, reverse=True)
                 
                 for ગુજરાતી_કીવર્ડ in કીવર્ડ_લિસ્ટ:
                     if ગુજરાતી_કીવર્ડ in translated_expr:
                         અંગ્રેજી_કીવર્ડ = self.કીવર્ડ_મેપ[ગુજરાતી_કીવર્ડ]
-                        
-                        # Same patterns as main translation
-                        patterns = [
-                            # Start of line
-                            r'^' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|$|[(){}[\]:,])',
-                            # After whitespace
-                            r'(?<=\s)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|$|[(){}[\]:,])',
-                            # After punctuation
-                            r'(?<=[(){}[\]:,])' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|$|[(){}[\]:,])',
-                        ]
-                        
-                        for પેટર્ન in patterns:
-                            translated_expr = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, translated_expr, flags=re.MULTILINE)
+                        પેટર્ન = r'(?<!\S)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|[(){}[\]:,]|$)'
+                        translated_expr = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, translated_expr)
                 
                 # Original expression ને translated સાથે replace કરો
                 processed_content = processed_content.replace('{' + expr + '}', '{' + translated_expr + '}')
