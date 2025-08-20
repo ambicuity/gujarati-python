@@ -93,27 +93,9 @@ jobs:
     - name: 📊 પ્લેટફોર્મ માહિતી (Platform info)
       run: |
         echo "🖥️ Platform Information:"
-        python -c "
-        import sys
-        import platform
-        import locale
-        
-        print(f'  OS: {platform.system()} {platform.release()}')
-        print(f'  Architecture: {platform.machine()}')  
-        print(f'  Python: {sys.version}')
-        print(f'  Encoding: {sys.getdefaultencoding()}')
-        print(f'  Locale: {locale.getdefaultlocale()}')
-        print(f'  File system encoding: {sys.getfilesystemencoding()}')
-        print()
-        
-        # Gujarati Unicode support test
-        print('🔤 Unicode Support Test:')
-        gujarati_text = 'ગુજરાતી પાઈથન'
-        print(f'  Gujarati text: {gujarati_text}')
-        print(f'  Length: {len(gujarati_text)} characters')
-        print(f'  Encoded length: {len(gujarati_text.encode(\"utf-8\"))} bytes')
-        print()
-        "
+        python -c 'import sys, platform, locale; print(f"  OS: {platform.system()} {platform.release()}"); print(f"  Architecture: {platform.machine()}"); print(f"  Python: {sys.version}"); print(f"  Encoding: {sys.getdefaultencoding()}"); print(f"  Locale: {locale.getdefaultlocale()}"); print(f"  File system encoding: {sys.getfilesystemencoding()}"); print()'
+        echo "🔤 Unicode Support Test:"
+        python -c "gujarati_text = 'ગુજરાતી પાઈથન'; print(f'  Gujarati text: {gujarati_text}'); print(f'  Length: {len(gujarati_text)} characters'); print(f'  Encoded length: {len(gujarati_text.encode(\"utf-8\"))} bytes')"
       shell: bash
 
   # નિષ્કર્ષ જોબ - બધા પ્લેટફોર્મ પર સફળતા ચકાસે છે
