@@ -50,7 +50,7 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
         # વૈકલ્પિક: development dependencies
-        if [ -f requirements-dev.txt ]; then python -m pip install -r requirements-dev.txt; fi
+        python -c "import os; os.path.exists('requirements-dev.txt') and os.system('python -m pip install -r requirements-dev.txt')"
       shell: bash  # Windows પર પણ bash ઉપયોગ કરો
 
     - name: 🧪 મૂળભૂત ટેસ્ટ (Run basic tests)
@@ -66,7 +66,10 @@ jobs:
 
     - name: ✅ બધા ટેસ્ટ એકસાથે (Run all tests together)
       run: |
-        python -m unittest discover -s ટેસ્ટ -p "*.py" -v
+        echo "Running individual test modules..."
+        python -m unittest ટેસ્ટ.ટેસ્ટ_અનુવાદક -v
+        python -m unittest ટેસ્ટ.પ્લેટફોર્મ_ટેસ્ટ -v  
+        python -m unittest ટેસ્ટ.ઉદાહરણ_ટેસ્ટ -v
       shell: bash
 
     - name: 🔧 કમાંડ લાઇન ઇન્ટરફેસ ટેસ્ટ (Test CLI interface)
@@ -91,25 +94,25 @@ jobs:
       run: |
         echo "🖥️ Platform Information:"
         python -c "
-import sys
-import platform
-import locale
-
-print(f'  OS: {platform.system()} {platform.release()}')
-print(f'  Architecture: {platform.machine()}')  
-print(f'  Python: {sys.version}')
-print(f'  Encoding: {sys.getdefaultencoding()}')
-print(f'  Locale: {locale.getdefaultlocale()}')
-print(f'  File system encoding: {sys.getfilesystemencoding()}')
-print()
-
-# Gujarati Unicode support test
-print('🔤 Unicode Support Test:')
-gujarati_text = 'ગુજરાતી પાઈથન'
-print(f'  Gujarati text: {gujarati_text}')
-print(f'  Length: {len(gujarati_text)} characters')
-print(f'  Encoded length: {len(gujarati_text.encode(\"utf-8\"))} bytes')
-print()
+        import sys
+        import platform
+        import locale
+        
+        print(f'  OS: {platform.system()} {platform.release()}')
+        print(f'  Architecture: {platform.machine()}')  
+        print(f'  Python: {sys.version}')
+        print(f'  Encoding: {sys.getdefaultencoding()}')
+        print(f'  Locale: {locale.getdefaultlocale()}')
+        print(f'  File system encoding: {sys.getfilesystemencoding()}')
+        print()
+        
+        # Gujarati Unicode support test
+        print('🔤 Unicode Support Test:')
+        gujarati_text = 'ગુજરાતી પાઈથન'
+        print(f'  Gujarati text: {gujarati_text}')
+        print(f'  Length: {len(gujarati_text)} characters')
+        print(f'  Encoded length: {len(gujarati_text.encode(\"utf-8\"))} bytes')
+        print()
         "
       shell: bash
 
