@@ -52,7 +52,7 @@ jobs:
         # વૈકલ્પિક: development dependencies
         if [ -f requirements-dev.txt ]; then
           python -m pip install -r requirements-dev.txt
-        fi
+        python -c "import os; os.path.exists('requirements-dev.txt') and os.system('python -m pip install -r requirements-dev.txt')"
       shell: bash  # Windows પર પણ bash ઉપયોગ કરો
 
     - name: 🧪 મૂળભૂત ટેસ્ટ (Run basic tests)
