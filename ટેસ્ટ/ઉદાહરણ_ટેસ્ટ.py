@@ -46,13 +46,20 @@ class ઉદાહરણ_ટેસ્ટ(unittest.TestCase):
         ફાઈલ_પાથ = self.ઉદાહરણ_પાથ / ઉદાહરણ_નામ
         self.assertTrue(ફાઈલ_પાથ.exists(), f"ઉદાહરણ ફાઈલ મળી નથી: {ફાઈલ_પાથ}")
         
+        # Windows encoding issues માટે environment વેરિએબલ સેટ કરો
+        env = os.environ.copy()
+        env['PYTHONIOENCODING'] = 'utf-8'
+        env['PYTHONUTF8'] = '1'  # Python 3.7+ માટે UTF-8 mode
+        
         # Python subprocess ઉપયોગ કરીને ફાઈલ ચલાવો
         પરિણામ = subprocess.run(
             [sys.executable, str(self.મુખ્ય_ફાઈલ), str(ફાઈલ_પાથ)],
             capture_output=True,
             text=True,
             encoding='utf-8',
-            cwd=str(self.પ્રોજેક્ટ_પાથ)
+            errors='replace',  # Unicode encode/decode errors ને handle કરો
+            cwd=str(self.પ્રોજેક્ટ_પાથ),
+            env=env
         )
         
         return {
@@ -201,12 +208,19 @@ class પ્રદર્શન_ટેસ્ટ(unittest.TestCase):
                 
                 શરુઆત_સમય = time.time()
                 
+                # Windows encoding issues માટે environment વેરિએબલ સેટ કરો
+                env = os.environ.copy()
+                env['PYTHONIOENCODING'] = 'utf-8'
+                env['PYTHONUTF8'] = '1'  # Python 3.7+ માટે UTF-8 mode
+                
                 પરિણામ = subprocess.run(
                     [sys.executable, str(self.મુખ્ય_ફાઈલ), str(ફાઈલ_પાથ)],
                     capture_output=True,
                     text=True,
                     encoding='utf-8',
+                    errors='replace',  # Unicode encode/decode errors ને handle કરો
                     cwd=str(self.પ્રોજેક્ટ_પાથ),
+                    env=env,
                     timeout=મહત્તમ_સમય  # Timeout protection
                 )
                 
