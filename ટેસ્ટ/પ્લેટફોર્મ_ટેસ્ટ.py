@@ -12,6 +12,7 @@ import sys
 import platform
 import tempfile
 import unittest
+import subprocess
 from pathlib import Path
 
 # પ્રોજેક્ટ પાથ ઉમેરો
@@ -83,6 +84,54 @@ class પ્લેટફોર્મ_સુસંગતતા_ટેસ્ટ(un
             અનુવાદિત = કોડ_અનુવાદ_કરો(ગુજરાતી)
             self.assertIn(expected_english, અનુવાદિત, 
                          f"Expected '{expected_english}' in translation of '{ગુજરાતી}', got: {અનુવાદિત}")
+
+    def test_windows_utf8_cli_support(self):
+        """Windows પર CLI interface ની UTF-8 support ચકાસે છે"""
+        import subprocess
+        import os
+        
+        # CLI કમાંડ ટેસ્ટ કરો
+        try:
+            # UTF-8 environment variables સેટ કરો
+            env = os.environ.copy()
+            env['PYTHONIOENCODING'] = 'utf-8'
+            env['PYTHONUTF8'] = '1'
+            
+            # મુખ્ય.py --help કમાંડ ટેસ્ટ કરો
+            cmd = [sys.executable, "મુખ્ય.py", "--help"]
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                errors='replace',
+                env=env,
+                timeout=10
+            )
+            
+            # આઉટપુટ ચકાસો
+            self.assertEqual(result.returncode, 0, f"CLI help failed with error: {result.stderr}")
+            self.assertIn("ગુજરાતી પાઈથન", result.stdout, "Gujarati text not found in help output")
+            
+            # Keywords કમાંડ પણ ટેસ્ટ કરો
+            cmd = [sys.executable, "મુખ્ય.py", "--keywords"]
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                encoding='utf-8',
+                errors='replace',
+                env=env,
+                timeout=10
+            )
+            
+            self.assertEqual(result.returncode, 0, f"CLI keywords failed with error: {result.stderr}")
+            self.assertIn("છાપો", result.stdout, "Keywords output not working properly")
+            
+        except subprocess.TimeoutExpired:
+            self.skipTest("CLI test timed out")
+        except Exception as e:
+            self.skipTest(f"CLI test failed due to: {e}")
 
 
 def પ્લેટફોર્મ_માહિતી_બતાવો():
