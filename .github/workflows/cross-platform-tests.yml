@@ -50,7 +50,9 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
         # વૈકલ્પિક: development dependencies
-        python -c "import os; os.path.exists('requirements-dev.txt') and os.system('python -m pip install -r requirements-dev.txt')"
+        if [ -f requirements-dev.txt ]; then
+          python -m pip install -r requirements-dev.txt
+        fi
       shell: bash  # Windows પર પણ bash ઉપયોગ કરો
 
     - name: 🧪 મૂળભૂત ટેસ્ટ (Run basic tests)
