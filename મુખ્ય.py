@@ -19,6 +19,26 @@ from ગુજરાતી_પાઈથન import કોડ_અનુવાદ_�
 from ગુજરાતી_પાઈથન.સહાયકો import કીવર્ડ_લિસ્ટ, કીવર્ડ_સર્ચ
 
 
+def _ensure_utf8_output():
+    """
+    Windows પર UTF-8 આઉટપુટ ની ખાતરી કરે છે
+    """
+    if sys.platform == 'win32':
+        # stdout અને stderr ને UTF-8 માટે reconfigure કરો
+        if hasattr(sys.stdout, 'reconfigure'):
+            sys.stdout.reconfigure(encoding='utf-8')
+        if hasattr(sys.stderr, 'reconfigure'):
+            sys.stderr.reconfigure(encoding='utf-8')
+        
+        # વૈકલ્પિક રીતે environment variables સેટ કરો
+        os.environ['PYTHONIOENCODING'] = 'utf-8'
+        os.environ['PYTHONUTF8'] = '1'
+
+
+# આયાત કરતી વખતે UTF-8 setup કરો
+_ensure_utf8_output()
+
+
 def ફાઈલ_ચલાવો(ફાઈલ_પાથ):
     """
     ગુજરાતી પાઈથન ફાઈલ ચલાવે છે
