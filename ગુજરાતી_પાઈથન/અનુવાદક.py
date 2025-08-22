@@ -212,14 +212,18 @@ class કીવર્ડ_અનુવાદક:
             for line in lines:
                 if ગુજરાતી_કીવર્ડ in line:
                     # Simple word boundary replacement that preserves spacing and indentation
+                    # Allow keywords to be preceded by whitespace, start of line, or operators
                     # Allow keywords to be followed by punctuation, whitespace, or end of line
-                    પેટર્ન = r'(?<!\S)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|[(){}[\]:,]|$)'
+                    પેટર્ન = r'(?<![a-zA-Z0-9_])' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|[(){}[\]:,]|$)'
                     line = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, line)
                 new_lines.append(line)
             
             અનુવાદિત_કોડ = '\n'.join(new_lines)
         
         # સ્ટ્રિંગ પ્લેસહોલ્ડર્સને વાપસ લાવો, પરંતુ f-strings ને અલગથી process કરો
+        # First, make placeholders available to f-string processing
+        self._current_string_placeholders = સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ
+        
         for પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ in સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ.items():
             if 'f_double' in પ્લેસહોલ્ડર or 'f_single' in પ્લેસહોલ્ડર:
                 # Process f-string separately
@@ -228,6 +232,10 @@ class કીવર્ડ_અનુવાદક:
             else:
                 # Regular string - restore as-is  
                 અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ)
+        
+        # Clean up the temporary attribute
+        if hasattr(self, '_current_string_placeholders'):
+            delattr(self, '_current_string_placeholders')
 
         return અનુવાદિત_કોડ
     
@@ -254,6 +262,12 @@ class કીવર્ડ_અનુવાદક:
         else:
             # Fallback - return as is
             return f_string_content
+        
+        # First restore any string placeholders that might be inside the f-string
+        # This handles cases like f"  - {વ્યક્તિ[__STR_single_67__]}"
+        if hasattr(self, '_current_string_placeholders'):
+            for પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ in self._current_string_placeholders.items():
+                content = content.replace(પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ)
             
         # F-string expressions ({...}) શોધો
         expr_pattern = r'\{([^}]+)\}'
@@ -268,7 +282,7 @@ class કીવર્ડ_અનુવાદક:
             for ગુજરાતી_કીવર્ડ in કીવર્ડ_લિસ્ટ:
                 if ગુજરાતી_કીવર્ડ in translated_expr:
                     અંગ્રેજી_કીવર્ડ = self.કીવર્ડ_મેપ[ગુજરાતી_કીવર્ડ]
-                    પેટર્ન = r'(?<!\S)' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|[(){}[\]:,]|$)'
+                    પેટર્ન = r'(?<![a-zA-Z0-9_])' + re.escape(ગુજરાતી_કીવર્ડ) + r'(?=\s|[(){}[\]:,]|$)'
                     translated_expr = re.sub(પેટર્ન, અંગ્રેજી_કીવર્ડ, translated_expr)
             
             # Original expression ને translated સાથે replace કરો
