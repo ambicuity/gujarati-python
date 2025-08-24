@@ -23,7 +23,9 @@ def પ્લેટફોર્મ_માહિતી_દર્શાવો():
     print(f"  Python: {sys.version}")
     print(f"  Encoding: {sys.getdefaultencoding()}")
     try:
-        print(f"  Locale: {locale.getdefaultlocale()}")
+        # Use the newer method instead of deprecated getdefaultlocale()
+        current_locale = locale.getlocale()
+        print(f"  Locale: {current_locale}")
     except:
         print("  Locale: Unable to determine")
     print(f"  File system encoding: {sys.getfilesystemencoding()}")
