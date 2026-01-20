@@ -9,6 +9,14 @@ from agents.karyakshamata_rakshak import KaryakshamataRakshak
 from agents.jatilata_rakshak import JatilataRakshak
 
 def analyze_file(file_path):
+    try:
+        from rich.console import Console
+        from rich.table import Table
+        from rich.panel import Panel
+        console = Console()
+    except ImportError:
+        console = None
+        
     print(f"\nચકાસણી ચાલુ છે: {file_path}")
     print("-" * 50)
     
@@ -16,7 +24,10 @@ def analyze_file(file_path):
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
     except Exception as e:
-        print(f"ફાઈલ વાંચવામાં ભૂલ: {e}")
+        if console:
+            console.print(f"[bold red]ફાઈલ વાંચવામાં ભૂલ: {e}[/]")
+        else:
+            print(f"ફાઈલ વાંચવામાં ભૂલ: {e}")
         return
 
     agents = [
@@ -35,15 +46,33 @@ def analyze_file(file_path):
     full_clean = True
     
     if not all_issues:
-        print("✅ કોઈ સમસ્યા મળી નથી. કોડ ઉત્તમ છે!")
+        if console:
+             console.print(Panel("[bold green]✅ કોઈ સમસ્યા મળી નથી. કોડ ઉત્તમ છે![/]", title="પરિણામ"))
+        else:
+             print("✅ કોઈ સમસ્યા મળી નથી. કોડ ઉત્તમ છે!")
     else:
         full_clean = False
-        # Sort by line number
         all_issues.sort(key=lambda x: x.get('line', 0))
         
-        for issue in all_issues:
-            icon = "⚠️" if issue['severity'] == 'warning' else "ℹ️"
-            print(f"{icon}  Line {issue['line']}: {issue['message']}")
+        if console:
+            table = Table(title=f"અહેવાલ: {os.path.basename(file_path)}")
+            table.add_column("Line", justify="right", style="cyan", no_wrap=True)
+            table.add_column("Type", style="magenta")
+            table.add_column("Message", style="white")
+
+            for issue in all_issues:
+                severity_color = "yellow" if issue['severity'] == 'warning' else "blue"
+                severity_icon = "⚠️" if issue['severity'] == 'warning' else "ℹ️"
+                table.add_row(
+                    str(issue['line']), 
+                    f"[{severity_color}]{severity_icon} {issue['severity'].upper()}[/]",
+                    issue['message']
+                )
+            console.print(table)
+        else:
+            for issue in all_issues:
+                icon = "⚠️" if issue['severity'] == 'warning' else "ℹ️"
+                print(f"{icon}  Line {issue['line']}: {issue['message']}")
             
     return full_clean
 
