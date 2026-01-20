@@ -58,7 +58,7 @@ setup(
     install_requires=read_requirements(),
     entry_points={
         "console_scripts": [
-            "gujarati-python=મુખ્ય:main",
+            "gujarati-python=cli:main",
         ],
     },
     project_urls={
