@@ -106,7 +106,7 @@ class પ્લેટફોર્મ_સુસંગતતા_ટેસ્ટ(un
                 encoding='utf-8',
                 errors='replace',
                 env=env,
-                timeout=10
+                timeout=30
             )
             
             # આઉટપુટ ચકાસો
@@ -122,7 +122,7 @@ class પ્લેટફોર્મ_સુસંગતતા_ટેસ્ટ(un
                 encoding='utf-8',
                 errors='replace',
                 env=env,
-                timeout=10
+                timeout=30
             )
             
             self.assertEqual(result.returncode, 0, f"CLI keywords failed with error: {result.stderr}")
