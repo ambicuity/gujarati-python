@@ -129,9 +129,50 @@ class કીવર્ડ_અનુવાદક:
             'ફંકટૂલ્સ': 'functools',
             'રી': 're',
         }
+
+        # મોડ્યુલ ફંક્શન મેપિંગ (ચોક્કસ પાથ માટે)
+        self.મોડ્યુલ_ફંક્શન_મેપ = {
+            # ગણિત (math)
+            'ગણિત.વર્ગમૂળ': 'math.sqrt',
+            'ગણિત.પાઈ': 'math.pi',
+            'ગણિત.સીલ': 'math.ceil',
+            'ગણિત.ફ્લોર': 'math.floor',
+            'ગણિત.ફેક્ટોરિયલ': 'math.factorial',
+            'ગણિત.સાઈન': 'math.sin',
+            'ગણિત.કોસ': 'math.cos',
+            'ગણિત.ટેન': 'math.tan',
+            'ગણિત.ઘાત': 'math.pow',
+            'ગણિત.લોગ': 'math.log',
+            
+            # રેન્ડમ (random)
+            'રેન્ડમ.રેન્ડઈન્ટ': 'random.randint',
+            'રેન્ડમ.પસંદ': 'random.choice',
+            'રેન્ડમ.શફલ': 'random.shuffle',
+            'રેન્ડમ.રેન્ડમ': 'random.random',
+            'રેન્ડમ.સીડ': 'random.seed',
+            'રેન્ડમ.સેમ્પલ': 'random.sample',
+            
+            # JSON (json)
+            'json.લોડ્સ': 'json.loads',
+            'json.ડમ્પ્સ': 'json.dumps',
+            'json.લોડ': 'json.load',
+            'json.ડમ્પ': 'json.dump',
+            
+            # sys
+            'sys.બહાર': 'sys.exit',
+            'sys.પાથ': 'sys.path',
+            'sys.આવૃત્તિ': 'sys.version',
+            
+            # os
+            'os.નામ': 'os.name',
+            'os.માર્ગ': 'os.path',
+            'os.સિસ્ટમ': 'os.system',
+        }
         
         # રિવર્સ મેપિંગ (અંગ્રેજીથી ગુજરાતી)
         આલ_મેપ = {**self.કીવર્ડ_મેપ, **self.મોડ્યુલ_નામ_મેપ}
+        # નોંધ: મોડ્યુલ_ફંક્શન_મેપ રિવર્સ મેપમાં ઉમેરવાથી જટિલતા વધી શકે છે, 
+        # તેથી અત્યારે ફક્ત સાદા કીવર્ડ્સ અને મોડ્યુલ નામો જ રાખીએ છીએ.
         self.રિવર્સ_મેપ = {v: k for k, v in આલ_મેપ.items()}
         
         # ઓપરેટર્સનું મેપિંગ
@@ -175,7 +216,20 @@ class કીવર્ડ_અનુવાદક:
                         નવી_લાઇન = લાઇન.replace(ગુજ_મોડ, ઇંગ_મોડ)
                         અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(લાઇન, નવી_લાઇન)
         
-        # 2. Module usage (ગણિત.sqrt) ને translate કરો
+        # 2. ચોક્કસ મોડ્યુલ ફંક્શન મેપિંગ (specific module functions)
+        # આને સામાન્ય module usage પહેલાં ચલાવવું જરૂરી છે
+        for ગુજ_પાથ, ઇંગ_પાથ in self.મોડ્યુલ_ફંક્શન_મેપ.items():
+             # આપણે dot ને escape કરવો પડશે
+             parts = ગુજ_પાથ.split('.')
+             if len(parts) == 2:
+                 mod, func = parts
+                 # પેટર્ન: ગણિત (boundary) . વર્ગમૂળ (boundary or symbol)
+                 # આપણને boundary checks ની જરૂર છે જેથી 'ગણિત.વર્ગમૂળ_નવું' મેચ ન થાય
+                 patt = r'\b' + re.escape(mod) + r'\.' + re.escape(func) + r'(?=\s|[(){}[\]:,]|$)'
+                 # સરળ રિપ્લેસમેન્ટ
+                 અનુવાદિત_કોડ = re.sub(patt, ઇંગ_પાથ, અનુવાદિત_કોડ)
+
+        # 3. Module usage (ગણિત.sqrt) ને translate કરો
         for ગુજ_મોડ, ઇંગ_મોડ in self.મોડ્યુલ_નામ_મેપ.items():
             પેટર્ન = r'\b' + re.escape(ગુજ_મોડ) + r'\.'
             અનુવાદિત_કોડ = re.sub(પેટર્ન, ઇંગ_મોડ + '.', અનુવાદિત_કોડ)
@@ -231,7 +285,7 @@ class કીવર્ડ_અનુવાદક:
         # First, make placeholders available to f-string processing
         self._current_string_placeholders = સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ
         
-        for પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ in સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ.items():
+        for પ્લેસહોલ્ડર, મૂળ_સ્ટ્રિંગ in reversed(list(સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ.items())):
             if 'f_double' in પ્લેસહોલ્ડર or 'f_single' in પ્લેસહોલ્ડર:
                 # Process f-string separately
                 processed_f_string = self._process_f_string(મૂળ_સ્ટ્રિંગ, કીવર્ડ_લિસ્ટ)
