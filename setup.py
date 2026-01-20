@@ -28,7 +28,7 @@ def read_requirements():
 
 setup(
     name="gujarati-python",
-    version="1.0.0",
+    version="1.0.1",
     author="Ritesh Rana",
     author_email="contact@riteshrana.engineer",
     description="Python programming with complete Gujarati syntax and keywords",
@@ -36,6 +36,7 @@ setup(
     long_description_content_type="text/markdown",
     url="https://github.com/ambicuity/gujarati-python",
     packages=find_packages(),
+    py_modules=["cli", "મુખ્ય"],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
