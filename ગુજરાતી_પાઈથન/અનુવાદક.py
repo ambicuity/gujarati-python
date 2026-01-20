@@ -128,6 +128,7 @@ class કીવર્ડ_અનુવાદક:
             'ઇટરટૂલ્સ': 'itertools',
             'ફંકટૂલ્સ': 'functools',
             'રી': 're',
+            'કાચબો': 'turtle',
         }
 
         # મોડ્યુલ ફંક્શન મેપિંગ (ચોક્કસ પાથ માટે)
@@ -167,6 +168,27 @@ class કીવર્ડ_અનુવાદક:
             'os.નામ': 'os.name',
             'os.માર્ગ': 'os.path',
             'os.સિસ્ટમ': 'os.system',
+            
+            # કાચબો (Turtle)
+            'કાચબો.આગળ': 'turtle.forward',
+            'કાચબો.પાછળ': 'turtle.backward',
+            'કાચબો.ડાબે': 'turtle.left',
+            'કાચબો.જમણે': 'turtle.right',
+            'કાચબો.ઉપર': 'turtle.up',
+            'કાચબો.નીચે': 'turtle.down',
+            'કાચબો.રંગ': 'turtle.color',
+            'કાચબો.શરૂ': 'turtle.begin_fill',
+            'કાચબો.બંધ': 'turtle.end_fill',
+            'કાચબો.ગતિ': 'turtle.speed',
+            'કાચબો.છાપો': 'turtle.write',
+            'કાચબો.વર્તુળ': 'turtle.circle',
+            'કાચબો.આકાર': 'turtle.shape',
+            'કાચબો.ગોલ': 'turtle.done',
+            'કાચબો.ગયા': 'turtle.goto',
+            'કાચબો.પેનકલર': 'turtle.pencolor',
+            'કાચબો.પેનસાઈઝ': 'turtle.pensize',
+            'કાચબો.બેકગ્રાઉન્ડ': 'turtle.bgcolor',
+            'કાચબો.શીર્ષક': 'turtle.title',
         }
         
         # રિવર્સ મેપિંગ (અંગ્રેજીથી ગુજરાતી)

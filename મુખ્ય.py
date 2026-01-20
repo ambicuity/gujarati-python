@@ -27,7 +27,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from ગુજરાતી_પાઈથન import કોડ_અનુવાદ_કરો, ગુજરાતી_કોડ_ચલાવો, ગુજરાતી_હેલ્પ
 from ગુજરાતી_પાઈથન.સહાયકો import કીવર્ડ_લિસ્ટ, કીવર્ડ_સર્ચ
+from ગુજરાતી_પાઈથન.સહાયકો import કીવર્ડ_લિસ્ટ, કીવર્ડ_સર્ચ
 from ગુજરાતી_પાઈથન.ભૂલ_અનુવાદક import કસ્ટમ_એક્સેપ્શન_હુક
+from ગુજરાતી_પાઈથન.શીખો import શીખવાનું_શરૂ_કરો
 
 # કસ્ટમ એરર હેન્ડલર સેટ કરો
 sys.excepthook = કસ્ટમ_એક્સેપ્શન_હુક
@@ -226,6 +228,7 @@ def main():
   python મુખ્ય.py --keywords               # કીવર્ડ્સની યાદી
   python મુખ્ય.py --search "પ્રિન્ટ"        # કીવર્ડ શોધો
   python મુખ્ય.py --translate ફાઈલ.py      # અનુવાદ કરો
+  python મુખ્ય.py --learn                  # શીખો (Interactive Tutorial)
   python મુખ્ય.py --help                   # મદદ
         """
     )
@@ -236,8 +239,14 @@ def main():
     parser.add_argument('-s', '--search', metavar='TERM', help='કીવર્ડ શોધો')
     parser.add_argument('-t', '--translate', metavar='FILE', help='ગુજરાતી કોડને અંગ્રેજીમાં અનુવાદ કરો')
     parser.add_argument('-o', '--output', metavar='FILE', help='અનુવાદ માટે આઉટપુટ ફાઈલ')
+    parser.add_argument('-l', '--learn', '--શીખો', action='store_true', help='ઈન્ટરએક્ટિવ શીખવાનો મોડ')
     
     args = parser.parse_args()
+    
+    # શીખવાનો મોડ
+    if args.learn:
+        શીખવાનું_શરૂ_કરો()
+        return
     
     # કીવર્ડ્સ બતાવો
     if args.keywords:
