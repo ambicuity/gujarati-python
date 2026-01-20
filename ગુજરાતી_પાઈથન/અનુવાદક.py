@@ -120,6 +120,11 @@ class કીવર્ડ_અનુવાદક:
             'ગણિત': 'math',
             'રેન્ડમ': 'random',
             'અવિકલ': 'time',
+            'સમય': 'time',
+            'તારીખ_સમય': 'datetime',
+            'ઓપરેટિંગ_સિસ્ટમ': 'os',
+            'સિસ્ટમ': 'sys',
+            'શબ્દમાળા': 'string',
             'datetime': 'datetime',
             'json': 'json',
             'os': 'os',
@@ -159,15 +164,72 @@ class કીવર્ડ_અનુવાદક:
             'json.લોડ': 'json.load',
             'json.ડમ્પ': 'json.dump',
             
-            # sys
+            # sys (સિસ્ટમ)
             'sys.બહાર': 'sys.exit',
+            'સિસ્ટમ.બહાર': 'sys.exit',
             'sys.પાથ': 'sys.path',
+            'સિસ્ટમ.પાથ': 'sys.path',
             'sys.આવૃત્તિ': 'sys.version',
+            'સિસ્ટમ.આવૃત્તિ': 'sys.version',
+            'sys.પ્લેટફોર્મ': 'sys.platform',
+            'સિસ્ટમ.પ્લેટફોર્મ': 'sys.platform',
+            'sys.આર્ગ્યુમેન્ટ્સ': 'sys.argv',
+            'સિસ્ટમ.આર્ગ્યુમેન્ટ્સ': 'sys.argv',
+            'sys.દલીલો': 'sys.argv',
+            'સિસ્ટમ.દલીલો': 'sys.argv',
             
-            # os
+            # os (ઓપરેટિંગ_સિસ્ટમ)
             'os.નામ': 'os.name',
+            'ઓપરેટિંગ_સિસ્ટમ.નામ': 'os.name',
             'os.માર્ગ': 'os.path',
+            'ઓપરેટિંગ_સિસ્ટમ.માર્ગ': 'os.path',
             'os.સિસ્ટમ': 'os.system',
+            'ઓપરેટિંગ_સિસ્ટમ.સિસ્ટમ': 'os.system',
+            'os.મેકડીર': 'os.mkdir',
+            'ઓપરેટિંગ_સિસ્ટમ.મેકડીર': 'os.mkdir',
+            'os.list': 'os.listdir',
+            'ઓપરેટિંગ_સિસ્ટમ.list': 'os.listdir',
+            'os.યાદી': 'os.listdir',
+            'ઓપરેટિંગ_સિસ્ટમ.યાદી': 'os.listdir',
+            'os.દૂર': 'os.remove',
+            'ઓપરેટિંગ_સિસ્ટમ.દૂર': 'os.remove',
+            'os.કાઢો': 'os.remove',
+            'ઓપરેટિંગ_સિસ્ટમ.કાઢો': 'os.remove',
+            'os.રસ્તો': 'os.path',
+            'ઓપરેટિંગ_સિસ્ટમ.રસ્તો': 'os.path',
+            'os.વર્તમાન_ડિરેક્ટરી': 'os.getcwd',
+            'ઓપરેટિંગ_સિસ્ટમ.વર્તમાન_ડિરેક્ટરી': 'os.getcwd',
+            'ઓએસ.વર્તમાન_ડિરેક્ટરી': 'os.getcwd', # Handle alias overlap if possible, though aliases are tricky
+            'os.ડિરેક્ટરી_બદલો': 'os.chdir',
+            'ઓપરેટિંગ_સિસ્ટમ.ડિરેક્ટરી_બદલો': 'os.chdir',
+            
+            # datetime (તારીખ_સમય)
+            'તારીખ_સમય.અત્યારે': 'datetime.datetime.now',
+            'datetime.અત્યારે': 'datetime.datetime.now',
+            'તારીખ_સમય.તારીખ': 'datetime.date',
+            'datetime.તારીખ': 'datetime.date',
+            'તારીખ_સમય.સમય': 'datetime.time',
+            'datetime.સમય': 'datetime.time',
+            'તારીખ_સમય.તફાવત': 'datetime.timedelta',
+            'datetime.તફાવત': 'datetime.timedelta',
+            'તારીખ_સમય.ફોર્મેટ': 'datetime.strftime',
+            'datetime.ફોર્મેટ': 'datetime.strftime',
+            
+            # time (સમય)
+            'સમય.ઊંઘો': 'time.sleep',
+            'time.ઊંઘો': 'time.sleep',
+            'સમય.સમય': 'time.time',
+            'time.સમય': 'time.time',
+            'સમય.ઊંઘ': 'time.sleep',
+            'time.ઊંઘ': 'time.sleep',
+
+             # string (શબ્દમાળા)
+            'શબ્દમાળા.અક્ષરો': 'string.ascii_letters',
+            'string.અક્ષરો': 'string.ascii_letters',
+            'શબ્દમાળા.અંકો': 'string.digits',
+            'string.અંકો': 'string.digits',
+            'શબ્દમાળા.ચિહ્નો': 'string.punctuation',
+            'string.ચિહ્નો': 'string.punctuation',
             
             # કાચબો (Turtle)
             'કાચબો.આગળ': 'turtle.forward',
@@ -230,10 +292,13 @@ class કીવર્ડ_અનુવાદક:
         
         # પહેલા import statements અને module usages ને handle કરો
         # 1. Import statements
+        # Sort keys by length (longest first) to prevent partial replacements (e.g., 'સમય' matching inside 'તારીખ_સમય')
+        sorted_modules = sorted(self.મોડ્યુલ_નામ_મેપ.items(), key=lambda x: len(x[0]), reverse=True)
+        
         for લાઇન in અનુવાદિત_કોડ.split('\n'):
             if લાઇન.strip().startswith('import ') or 'ઈમ્પોર્ટ' in લાઇન:
                 # import statement માં module names ટ્રાન્સલેટ કરો
-                for ગુજ_મોડ, ઇંગ_મોડ in self.મોડ્યુલ_નામ_મેપ.items():
+                for ગુજ_મોડ, ઇંગ_મોડ in sorted_modules:
                     if ગુજ_મોડ in લાઇન:
                         નવી_લાઇન = લાઇન.replace(ગુજ_મોડ, ઇંગ_મોડ)
                         અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(લાઇન, નવી_લાઇન)
@@ -252,7 +317,9 @@ class કીવર્ડ_અનુવાદક:
                  અનુવાદિત_કોડ = re.sub(patt, ઇંગ_પાથ, અનુવાદિત_કોડ)
 
         # 3. Module usage (ગણિત.sqrt) ને translate કરો
-        for ગુજ_મોડ, ઇંગ_મોડ in self.મોડ્યુલ_નામ_મેપ.items():
+        # Sort here too just in case
+        sorted_modules = sorted(self.મોડ્યુલ_નામ_મેપ.items(), key=lambda x: len(x[0]), reverse=True)
+        for ગુજ_મોડ, ઇંગ_મોડ in sorted_modules:
             પેટર્ન = r'\b' + re.escape(ગુજ_મોડ) + r'\.'
             અનુવાદિત_કોડ = re.sub(પેટર્ન, ઇંગ_મોડ + '.', અનુવાદિત_કોડ)
         
