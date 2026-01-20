@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional
 from io import StringIO
 
 from .અનુવાદક import કોડ_અનુવાદ_કરો, વેલિડેશન_કરો
+from .ભૂલ_અનુવાદક import ભૂલ_અનુવાદક
 
 
 class ગુજરાતી_પ્રોસેસર:
@@ -22,6 +23,7 @@ class ગુજરાતી_પ્રોસેસર:
             '__name__': '__main__',
             '__builtins__': __builtins__,
         }
+        self.અનુવાદક = ભૂલ_અનુવાદક()
     
     def કોડ_ચલાવો(self, ગુજરાતી_કોડ: str, વેરિએબલ્સ: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -79,7 +81,22 @@ class ગુજરાતી_પ્રોસેસર:
                 sys.stdout = જૂના_સ્ટડઆઉટ
                 
         except Exception as e:
-            પરિણામ['એરર'] = f"એરર: {str(e)}\n{traceback.format_exc()}"
+            # એરરનું ગુજરાતીમાં અનુવાદ કરો
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            ગુજરાતી_એરર = self.અનુવાદક.ગુજરાતી_એરર_મેળવો(exc_type, exc_value, exc_traceback)
+            
+            # ટ્રેસબેક ફોર્મેટ કરો (ફક્ત છેલ્લી લાઇન નહીં, પરંતુ વિગતવાર)
+            tb_list = traceback.extract_tb(exc_traceback)
+            એરર_વિગત = ""
+            for frame in tb_list:
+                # <string> વાળી ફાઈલ મતલબ આપણો એક્ઝિક્યુટ થયેલો કોડ
+                if frame.filename == "<string>":
+                    એરર_વિગત += f"  લાઈન {frame.lineno} માં:\n    {frame.line}\n"
+            
+            if એરર_વિગત:
+                પરિણામ['એરર'] = f"{એરર_વિગત}\n{ગુજરાતી_એરર}"
+            else:
+                પરિણામ['એરર'] = f"{ગુજરાતી_એરર}\n\n(મૂળ એરર: {str(e)})"
         
         return પરિણામ
     

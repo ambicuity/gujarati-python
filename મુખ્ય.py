@@ -27,6 +27,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from ગુજરાતી_પાઈથન import કોડ_અનુવાદ_કરો, ગુજરાતી_કોડ_ચલાવો, ગુજરાતી_હેલ્પ
 from ગુજરાતી_પાઈથન.સહાયકો import કીવર્ડ_લિસ્ટ, કીવર્ડ_સર્ચ
+from ગુજરાતી_પાઈથન.ભૂલ_અનુવાદક import કસ્ટમ_એક્સેપ્શન_હુક
+
+# કસ્ટમ એરર હેન્ડલર સેટ કરો
+sys.excepthook = કસ્ટમ_એક્સેપ્શન_હુક
 
 
 def _ensure_utf8_output():

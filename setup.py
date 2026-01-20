@@ -28,7 +28,7 @@ def read_requirements():
 
 setup(
     name="gujarati-python",
-    version="1.0.1",
+    version="1.1.0",
     author="Ritesh Rana",
     author_email="contact@riteshrana.engineer",
     description="Python programming with complete Gujarati syntax and keywords",
