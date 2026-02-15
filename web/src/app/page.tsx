@@ -2,13 +2,15 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Check, Copy, Terminal, Code2, Globe, Sparkles } from "lucide-react";
+import { Check, Copy, Terminal, Code2, Globe, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 
 import { HeroCodeCard } from "@/components/ui/hero-code-card";
+import { AnimatePresence } from "framer-motion";
 
 export default function Home() {
   const [copied, setCopied] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const copyCommand = () => {
     navigator.clipboard.writeText("pip install gujarati-python");
@@ -16,23 +18,72 @@ export default function Home() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const navLinks = [
+    { name: "FEATURES", href: "#features" },
+    { name: "INSTALL", href: "#install" },
+    { name: "DOCS", href: "#docs" },
+    { name: "GITHUB", href: "https://github.com/ambicuity/gujarati-python" },
+  ];
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between pb-24">
-      {/* Navbar Placeholder */}
+      {/* Navbar */}
       <nav className="w-full border-b border-black/5 dark:border-white/5 bg-white/50 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="font-mono text-sm tracking-widest text-blue-600 font-bold">GUJARATI_PYTHON_V1.0</div>
-          <div className="flex gap-6 text-sm font-medium text-slate-500">
-            <a href="#features" className="hover:text-blue-600 transition-colors">FEATURES</a>
-            <a href="#install" className="hover:text-blue-600 transition-colors">INSTALL</a>
-            <a href="#docs" className="hover:text-blue-600 transition-colors">DOCS</a>
-            <a href="https://github.com/ambicuity/gujarati-python" className="hover:text-blue-600 transition-colors">GITHUB</a>
+          <div className="font-mono text-sm tracking-widest text-blue-600 font-bold z-50 relative">GUJARATI_PYTHON_V1.0</div>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex gap-6 text-sm font-medium text-slate-500">
+            {navLinks.map(link => (
+              <a key={link.name} href={link.href} className="hover:text-blue-600 transition-colors">{link.name}</a>
+            ))}
           </div>
+
+          {/* Mobile Nav Button */}
+          <button
+            className="md:hidden z-50 p-2 text-slate-600"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6" /> : <div className="space-y-1.5">
+              <span className="block w-6 h-0.5 bg-current"></span>
+              <span className="block w-6 h-0.5 bg-current"></span>
+              <span className="block w-6 h-0.5 bg-current"></span>
+            </div>}
+            {/* Note: Using CSS shapes for menu icon to avoid importing another icon if not available, or I can use existing icons. 
+                    Wait, I have Check, Copy, Terminal, Code2, Globe, Sparkles imported. I don't have Menu or X. 
+                    I'll just use simple span lines for hamburger and Check rotated (or just X logic) for close. 
+                    Actually, let's use the X icon if I can import it, or just styled spans.
+                */}
+          </button>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="absolute top-0 left-0 w-full bg-white border-b border-slate-200 shadow-xl p-4 pt-20 md:hidden flex flex-col gap-4 z-40"
+            >
+              {navLinks.map(link => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  className="text-lg font-medium text-slate-600 py-2 border-b border-slate-50"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.name}
+                </a>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {/* Hero Section */}
-      <section className="w-full relative pt-20 pb-0 md:pb-32 border-b border-black/5 dark:border-white/5 overflow-hidden">
+      <section className="w-full relative pt-12 md:pt-20 pb-0 md:pb-32 border-b border-black/5 dark:border-white/5 overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -41,11 +92,11 @@ export default function Home() {
               transition={{ duration: 0.8 }}
               className="flex flex-col items-start max-w-2xl"
             >
-              <div className="mb-6 font-mono text-blue-600 text-xs tracking-[0.2em] border border-blue-100 bg-blue-50 px-3 py-1 uppercase">
+              <div className="mb-4 md:mb-6 font-mono text-blue-600 text-[10px] md:text-xs tracking-[0.2em] border border-blue-100 bg-blue-50 px-3 py-1 uppercase">
                 The First of its Kind
               </div>
 
-              <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-slate-900 mb-6 leading-[0.9]">
+              <h1 className="text-4xl sm:text-5xl md:text-8xl font-bold tracking-tight text-slate-900 mb-6 leading-[0.9]">
                 Program in your <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 font-gujarati">માતૃભાષા</span> (Mother Tongue).
               </h1>
