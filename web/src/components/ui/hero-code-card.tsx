@@ -2,7 +2,12 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
-import { cn } from "../../lib/utils";
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs))
+}
 
 const codeSteps = [
     {

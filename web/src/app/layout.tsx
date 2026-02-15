@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Noto_Sans_Gujarati } from "next/font/google";
 import "./globals.css";
-import { cn } from "../lib/utils";
+import { type ClassValue, clsx } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono" });
