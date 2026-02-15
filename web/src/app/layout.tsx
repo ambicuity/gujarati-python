@@ -8,8 +8,46 @@ const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mon
 const notoSansGujarati = Noto_Sans_Gujarati({ subsets: ["gujarati"], variable: "--font-gujarati" });
 
 export const metadata: Metadata = {
-  title: "Gujarati Python - Program in Your Language",
-  description: "The world's first complete Python programming environment in the Gujarati language.",
+  title: "Gujarati Python - Program in Your Mother Tongue",
+  description: "The world's first complete Python programming environment in the Gujarati language. Write code, build apps, and learn programming in Gujarati.",
+  keywords: ["Gujarati Python", "Python in Gujarati", "Gujarati Programming", "Learn Python Gujarati", "Coding in Mother Tongue", "India Coding", "Regional Language Programming", "Python wrapper"],
+  authors: [{ name: "Ritesh Rana", url: "https://riteshrana.engineer" }],
+  creator: "Ritesh Rana",
+  metadataBase: new URL("https://ambicuity.github.io/gujarati-python/"),
+  openGraph: {
+    type: "website",
+    locale: "gu_IN",
+    url: "https://ambicuity.github.io/gujarati-python/",
+    title: "Gujarati Python - Program in Your Mother Tongue",
+    description: "Break the language barrier. Build powerful software using the syntax you dream in. A complete Python implementation for Gujarati speakers.",
+    siteName: "Gujarati Python",
+    images: [
+      {
+        url: "/og-image.png", // We should create this or use a placeholder
+        width: 1200,
+        height: 630,
+        alt: "Gujarati Python Hero"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gujarati Python - Program in Your Mother Tongue",
+    description: "The world's first complete Python programming environment in the Gujarati language.",
+    creator: "@riteshrana", // Assuming or placeholder
+    images: ["/og-image.png"]
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 };
 
 export default function RootLayout({
