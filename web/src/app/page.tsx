@@ -1,0 +1,179 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Check, Copy, Terminal, Code2, Globe, Sparkles } from "lucide-react";
+import { useState } from "react";
+
+export default function Home() {
+  const [copied, setCopied] = useState(false);
+
+  const copyCommand = () => {
+    navigator.clipboard.writeText("pip install gujarati-python");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between pb-24">
+      {/* Navbar Placeholder */}
+      <nav className="w-full border-b border-black/5 dark:border-white/5 bg-white/50 backdrop-blur-md sticky top-0 z-50">
+        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+          <div className="font-mono text-sm tracking-widest text-blue-600 font-bold">GUJARATI_PYTHON_V1.0</div>
+          <div className="flex gap-6 text-sm font-medium text-slate-500">
+            <a href="#features" className="hover:text-blue-600 transition-colors">FEATURES</a>
+            <a href="#install" className="hover:text-blue-600 transition-colors">INSTALL</a>
+            <a href="#docs" className="hover:text-blue-600 transition-colors">DOCS</a>
+            <a href="https://github.com/ambicuity/gujarati-python" className="hover:text-blue-600 transition-colors">GITHUB</a>
+          </div>
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <section className="w-full relative pt-20 pb-32 border-b border-black/5 dark:border-white/5 overflow-hidden">
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex flex-col items-start max-w-5xl"
+          >
+            <div className="mb-6 font-mono text-blue-600 text-xs tracking-[0.2em] border border-blue-100 bg-blue-50 px-3 py-1 uppercase">
+              The First of its Kind
+            </div>
+
+            <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-slate-900 mb-6 leading-[0.9]">
+              Program in your <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 font-gujarati">માતૃભાષા</span> (Mother Tongue).
+            </h1>
+
+            <p className="text-xl md:text-2xl text-slate-500 max-w-2xl mb-10 font-light leading-relaxed">
+              A complete Python implementation in Gujarati. Break the language barrier and build powerful software using the syntax you dream in.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-4 items-start">
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                <Button size="lg" className="relative h-14 px-8 text-lg bg-slate-900 border-none text-white hover:bg-slate-800">
+                  Get Started <span className="ml-2 font-mono text-xs opacity-50">&rarr;</span>
+                </Button>
+              </div>
+
+              <Button size="lg" variant="outline" className="h-14 px-8 text-lg border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 font-mono">
+                View Documentation
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Decorative Grid Element */}
+        <div className="absolute top-0 right-0 w-1/3 h-full border-l border-black/5 hidden lg:block">
+          <div className="h-full w-full bg-slate-50/30 flex items-center justify-center">
+            <div className="text-[20rem] font-bold text-slate-100 select-none font-gujarati opacity-50 blur-3xl">અ</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Installation Section */}
+      <section id="install" className="w-full py-20 border-b border-black/5 bg-slate-50/50">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-sm font-mono tracking-widest text-slate-400 mb-4">01 / INSTALLATION</h2>
+              <h3 className="text-4xl font-bold text-slate-900 mb-6 font-gujarati">સ્થાપન (Installation)</h3>
+              <p className="text-slate-600 mb-8 max-w-md">
+                Get started instantly. Gujarati Python is available via PyPI and can be installed with a single command.
+              </p>
+
+              <div className="bg-white border border-slate-200 p-1 flex items-center justify-between shadow-sm max-w-md">
+                <code className="px-4 py-3 font-mono text-sm text-slate-700">pip install gujarati-python</code>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={copyCommand}
+                  className="h-10 w-10 p-0"
+                >
+                  {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-slate-400" />}
+                </Button>
+              </div>
+            </div>
+
+            {/* Terminal Preview */}
+            <div className="rounded-lg overflow-hidden bg-slate-950 shadow-2xl border border-slate-800 font-mono text-xs md:text-sm">
+              <div className="flex items-center gap-2 px-4 py-3 bg-slate-900 border-b border-slate-800">
+                <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                <span className="ml-2 text-slate-500">bash</span>
+              </div>
+              <div className="p-6 text-slate-300 space-y-2">
+                <div className="flex">
+                  <span className="text-blue-500 mr-2">$</span>
+                  <span className="text-white">gujarati-python example.py</span>
+                </div>
+                <div className="text-green-400">પરિણામ: 10</div>
+                <div className="text-slate-500"># Process finished successfully</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section id="features" className="w-full py-24">
+        <div className="container mx-auto px-4">
+          <div className="flex items-end justify-between mb-16">
+            <div>
+              <h2 className="text-sm font-mono tracking-widest text-slate-400 mb-4">02 / FEATURES</h2>
+              <h3 className="text-4xl font-bold text-slate-900">Why Gujarati Python?</h3>
+            </div>
+            <div className="hidden md:block w-px h-20 bg-slate-200 transform rotate-12"></div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 border-t border-l border-slate-200">
+            {/* Feature 1 */}
+            <div className="group border-r border-b border-slate-200 p-10 hover:bg-slate-50 transition-colors relative">
+              <div className="absolute top-4 right-4 text-slate-200 group-hover:text-blue-200 transition-colors">
+                <Terminal size={32} strokeWidth={1} />
+              </div>
+              <h4 className="font-bold text-xl mb-3 mt-4">Native Syntax</h4>
+              <p className="text-slate-500 leading-relaxed text-sm">
+                Write <code className="bg-slate-100 px-1 py-0.5 rounded text-blue-600">ડેફ</code> instead of <code className="bg-slate-100 px-1 py-0.5 rounded text-slate-600">def</code>. Complete language mapping for intuitive coding.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="group border-r border-b border-slate-200 p-10 hover:bg-slate-50 transition-colors relative">
+              <div className="absolute top-4 right-4 text-slate-200 group-hover:text-blue-200 transition-colors">
+                <Code2 size={32} strokeWidth={1} />
+              </div>
+              <h4 className="font-bold text-xl mb-3 mt-4">Python Compatible</h4>
+              <p className="text-slate-500 leading-relaxed text-sm">
+                Built on top of standard Python (v3.12+). Use all your favorite libraries like NumPy and Pandas seamlessly.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="group border-r border-b border-slate-200 p-10 hover:bg-slate-50 transition-colors relative">
+              <div className="absolute top-4 right-4 text-slate-200 group-hover:text-blue-200 transition-colors">
+                <Sparkles size={32} strokeWidth={1} />
+              </div>
+              <h4 className="font-bold text-xl mb-3 mt-4">Modern Tooling</h4>
+              <p className="text-slate-500 leading-relaxed text-sm">
+                Includes a custom CLI, REPL, and VS Code extension support for a modern developer experience.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="w-full py-12 border-t border-slate-200 bg-slate-50">
+        <div className="container mx-auto px-4 flex justify-between items-center text-sm font-mono text-slate-400">
+          <p>© 2026 GUJARATI PYTHON</p>
+          <p>DESIGNED FOR BUILDERS</p>
+        </div>
+      </footer>
+    </main>
+  );
+}
