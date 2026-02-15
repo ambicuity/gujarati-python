@@ -1,11 +1,12 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Button } from "../components/ui/button";
+import Link from "next/link";
 import { Check, Copy, Terminal, Code2, Globe, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 
-import { HeroCodeCard } from "@/components/ui/hero-code-card";
+import { HeroCodeCard } from "../components/ui/hero-code-card";
 import { AnimatePresence } from "framer-motion";
 
 export default function Home() {
@@ -21,7 +22,7 @@ export default function Home() {
   const navLinks = [
     { name: "FEATURES", href: "#features" },
     { name: "INSTALL", href: "#install" },
-    { name: "DOCS", href: "#docs" },
+    { name: "DOCS", href: "/docs" },
     { name: "GITHUB", href: "https://github.com/ambicuity/gujarati-python" },
   ];
 
@@ -113,9 +114,11 @@ export default function Home() {
                   </Button>
                 </div>
 
-                <Button size="lg" variant="outline" className="h-14 px-8 text-lg border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 font-mono">
-                  View Documentation
-                </Button>
+                <Link href="/docs">
+                  <Button size="lg" variant="outline" className="h-14 px-8 text-lg border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 font-mono">
+                    View Documentation
+                  </Button>
+                </Link>
               </div>
             </motion.div>
 
