@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="gu">
+    <html lang="gu" suppressHydrationWarning>
       <body className={cn(
         inter.variable,
         jetbrainsMono.variable,
