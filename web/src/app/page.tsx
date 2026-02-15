@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Check, Copy, Terminal, Code2, Globe, Sparkles } from "lucide-react";
 import { useState } from "react";
 
+import { HeroCodeCard } from "@/components/ui/hero-code-card";
+
 export default function Home() {
   const [copied, setCopied] = useState(false);
 
@@ -30,40 +32,47 @@ export default function Home() {
       </nav>
 
       {/* Hero Section */}
-      <section className="w-full relative pt-20 pb-32 border-b border-black/5 dark:border-white/5 overflow-hidden">
+      <section className="w-full relative pt-20 pb-0 md:pb-32 border-b border-black/5 dark:border-white/5 overflow-hidden">
         <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex flex-col items-start max-w-5xl"
-          >
-            <div className="mb-6 font-mono text-blue-600 text-xs tracking-[0.2em] border border-blue-100 bg-blue-50 px-3 py-1 uppercase">
-              The First of its Kind
-            </div>
-
-            <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-slate-900 mb-6 leading-[0.9]">
-              Program in your <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 font-gujarati">માતૃભાષા</span> (Mother Tongue).
-            </h1>
-
-            <p className="text-xl md:text-2xl text-slate-500 max-w-2xl mb-10 font-light leading-relaxed">
-              A complete Python implementation in Gujarati. Break the language barrier and build powerful software using the syntax you dream in.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 items-start">
-              <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-                <Button size="lg" className="relative h-14 px-8 text-lg bg-slate-900 border-none text-white hover:bg-slate-800">
-                  Get Started <span className="ml-2 font-mono text-xs opacity-50">&rarr;</span>
-                </Button>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="flex flex-col items-start max-w-2xl"
+            >
+              <div className="mb-6 font-mono text-blue-600 text-xs tracking-[0.2em] border border-blue-100 bg-blue-50 px-3 py-1 uppercase">
+                The First of its Kind
               </div>
 
-              <Button size="lg" variant="outline" className="h-14 px-8 text-lg border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 font-mono">
-                View Documentation
-              </Button>
+              <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-slate-900 mb-6 leading-[0.9]">
+                Program in your <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 font-gujarati">માતૃભાષા</span> (Mother Tongue).
+              </h1>
+
+              <p className="text-xl md:text-2xl text-slate-500 max-w-xl mb-10 font-light leading-relaxed">
+                A complete Python implementation in Gujarati. Break the language barrier and build powerful software using the syntax you dream in.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 items-start">
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg blur opacity-30 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                  <Button size="lg" className="relative h-14 px-8 text-lg bg-slate-900 border-none text-white hover:bg-slate-800">
+                    Get Started <span className="ml-2 font-mono text-xs opacity-50">&rarr;</span>
+                  </Button>
+                </div>
+
+                <Button size="lg" variant="outline" className="h-14 px-8 text-lg border-slate-200 text-slate-600 hover:text-blue-600 hover:border-blue-200 font-mono">
+                  View Documentation
+                </Button>
+              </div>
+            </motion.div>
+
+            {/* Right Side - Interactive Code Visual */}
+            <div className="w-full flex justify-center lg:justify-end mt-12 lg:mt-0">
+              <HeroCodeCard />
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Decorative Grid Element */}
