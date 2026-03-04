@@ -4,7 +4,7 @@
 આ મોડ્યુલમાં ગુજરાતી પાઈથન ડેવલપમેન્ટ માટે ઉપયોગી ફંક્શન્સ છે.
 """
 
-from typing import List, Dict, Any
+from typing import List, Dict
 from .અનુવાદક import કીવર્ડ_અનુવાદક
 
 

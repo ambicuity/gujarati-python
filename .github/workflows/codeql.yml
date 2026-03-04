@@ -27,6 +27,12 @@ jobs:
         with:
           languages: python, javascript
           queries: security-and-quality
+          paths-ignore: |
+            ઉદાહરણો/**
+            રંગોળી.py
+            મહા_પરીક્ષણ.py
+            readme_example.py
+            hello_world.py
 
       - name: Autobuild
         uses: github/codeql-action/autobuild@v4

@@ -1,14 +1,13 @@
 
-import sys
 import time
-from typing import List, Dict, Any
+from typing import Dict, Any
 from .પ્રોસેસર import ગુજરાતી_કોડ_ચલાવો
 
 try:
     from rich.console import Console
     from rich.panel import Panel
     from rich.markdown import Markdown
-    from rich.prompt import Prompt
+    from rich.markdown import Markdown
     console = Console()
 except ImportError:
     console = None

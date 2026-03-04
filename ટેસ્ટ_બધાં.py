@@ -12,7 +12,6 @@ import sys
 import subprocess
 import platform
 import locale
-import unittest
 from pathlib import Path
 
 def પ્લેટફોર્મ_માહિતી_દર્શાવો():
@@ -26,7 +25,7 @@ def પ્લેટફોર્મ_માહિતી_દર્શાવો():
         # Use the newer method instead of deprecated getdefaultlocale()
         current_locale = locale.getlocale()
         print(f"  Locale: {current_locale}")
-    except:
+    except Exception:
         print("  Locale: Unable to determine")
     print(f"  File system encoding: {sys.getfilesystemencoding()}")
     print()

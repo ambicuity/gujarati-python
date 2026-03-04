@@ -1,5 +1,5 @@
 import re
-from typing import List, Dict, Tuple
+from typing import List, Dict
 
 class VyakaranRakshak:
     """
@@ -54,10 +54,7 @@ class VyakaranRakshak:
                         'severity': 'warning'
                     })
             
-            # Simple keyword validation (heuristic)
-            # Find words that look like they might be intended as keywords but are slightly off
             # This is hard to do perfectly without a full parser, but we can catch obvious things
-            pass 
 
         return issues
 

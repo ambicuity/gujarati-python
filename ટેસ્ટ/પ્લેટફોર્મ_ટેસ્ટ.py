@@ -12,7 +12,6 @@ import sys
 import platform
 import tempfile
 import unittest
-import subprocess
 from pathlib import Path
 
 # પ્રોજેક્ટ પાથ ઉમેરો

@@ -10,14 +10,13 @@
 import os
 import sys
 import unittest
-import tempfile
 import subprocess
 from pathlib import Path
 
 # પ્રોજેક્ટ પાથ ઉમેરો
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from ગુજરાતી_પાઈથન import કોડ_અનુવાદ_કરો, ગુજરાતી_કોડ_ચલાવો
+from ગુજરાતી_પાઈથન import કોડ_અનુવાદ_કરો
 
 
 class ઉદાહરણ_ટેસ્ટ(unittest.TestCase):
