@@ -214,10 +214,6 @@ class ટેસ્ટ_ગ્લોબલ_ફંક્શન્સ(unittest.TestC
 
 
 if __name__ == '__main__':
-    # ગુજરાતી આઉટપુટ માટે UTF-8 એન્કોડિંગ
-    import io
-    import locale
-    
     # સિસ્ટમ એન્કોડિંગ સેટ કરો
     if hasattr(sys.stdout, 'reconfigure'):
         sys.stdout.reconfigure(encoding='utf-8')

@@ -87,7 +87,7 @@ def main():
         analyze_file(target)
     elif os.path.isdir(target):
         # Find all .py files recursively
-        files = glob.glob(os.path.join(target, "**/*.py"), recursive=True)
+
         # Also include files directly in dir
         # If target has gujarati chars, glob might be tricky, walk is safer
         files = []
