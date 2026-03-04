@@ -76,7 +76,7 @@ reviews:
         1. All Gujarati mappings must handle UTF-8 properly.
         2. Flag any use of exec() or eval() that processes unescaped or unvalidated user input. Highlight any generated Python string mapping that lacks proper indentation.
         3. No bare `except:` clauses. Catch specific exceptions.
-        4. Check for the presence of a docstring for every new function and validate its format.
+        4. Check for the presence of a docstring for every new function. Request changes if the docstring does not explicitly list the arguments and return types.
         5. Variable naming in Python generation must be collision-free.
 
         ## Architecture
@@ -89,7 +89,7 @@ reviews:
         This is the Next.js frontend for the in-browser Gujarati Python playground.
         1. Keep client-side evaluation safe (do not use raw `eval()` directly without a sandbox if executing JS).
         2. Ensure mobile-responsive UI doesn't break.
-        3. Do not add heavy NPM dependencies without justification.
+        3. Flag the addition of any new NPM dependencies and explicitly ask the author to justify the bundle size impact in the PR comments.
 
     # ── Unit Tests ───────────────────────────────────────────────────────────
     - path: "ટેસ્ટ/**"
@@ -99,7 +99,7 @@ reviews:
         CRITICAL PRINCIPLES - Tests Must Fail Loudly & Deterministically:
         - Tests must provide useful error messages when they fail for future debugging.
         - No `print()` statements - use assertions with descriptive messages.
-        - No timing-dependent or unseeded random assertions.
+        - No timing-dependent or unseeded random assertions. Ensure any mocked data or AST parsing validations match the Gujarati lexer's expected output format.
 
         EXPECTATIONS:
         - Test constructor behavior with valid inputs, edge cases, and invalid inputs.
