@@ -1,0 +1,68 @@
+name: "🐛 Bug Report"
+description: Report a bug or issue with Gujarati Python parsing, evaluation, or Web UI
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thanks for reporting a bug! 🐛
+
+        Before submitting:
+        1. Search [existing issues](https://github.com/ambicuity/gujarati-python/issues) to avoid duplicates
+        2. If it's a security vulnerability, email `contact@riteshrana.engineer` **do NOT open a public issue**
+
+        > [!IMPORTANT]
+        > If you plan to fix this bug yourself, **you must claim the issue first** by commenting
+        > `/assign`. PRs submitted without a prior assignment will be closed.
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: "Bug Type"
+      description: What kind of issue are you experiencing?
+      options:
+        - "Core: Parser crashes on valid Gujarati Syntax"
+        - "Core: Interpreter evaluates an expression incorrectly"
+        - "Core: Standard library bindings failing"
+        - "Web UI: Playground not executing code"
+        - "Web UI: Layout broken or unresponsive"
+        - "Core/Web: Encoding or Unicode issue"
+        - "CI: a GitHub Actions workflow is failing unexpectedly"
+        - "Other"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: What happened and what did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: "Steps to Reproduce"
+      description: How can we reproduce this issue?
+      placeholder: |
+        1. Write the following code in a file: 'છાપો("નમસ્તે")'
+        2. Run `python મુખ્ય.py sample.gpy`
+        3. See error (SyntaxError on line X) instead of expected output
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Additional Context"
+      description: |
+        Attach any relevant information: stack traces, browser console errors, OS versions, etc.
+      placeholder: |
+        Python Version: 3.11
+        OS: macOS 14.1
+
+        Error log:
+        ```
+        Traceback (most recent call last):
+        ...
+        ```

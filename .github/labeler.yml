@@ -1,0 +1,51 @@
+ci-cd:
+  - changed-files:
+    - any-glob-to-any-file: '.github/workflows/**'
+    - any-glob-to-any-file: '.github/actions/**'
+    - any-glob-to-any-file: 'Makefile'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: '**/*.md'
+
+enhancement:
+  - changed-files:
+    - any-glob-to-any-file: 'ગુજરાતી_પાઈથન/**'
+    - any-glob-to-any-file: 'મુખ્ય.py'
+    - any-glob-to-any-file: 'રંગોળી.py'
+  - head-branch: ['^feat/', 'feat/']
+
+bug:
+  - head-branch: ['^fix/', 'fix/']
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file: 'test_*.py'
+    - any-glob-to-any-file: 'tests/**'
+    - any-glob-to-any-file: 'ટેસ્ટ/**'
+
+chore:
+  - head-branch: ['^chore/', 'chore/']
+
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: 'web/**/*.js'
+    - any-glob-to-any-file: 'web/**/*.jsx'
+    - any-glob-to-any-file: 'web/**/*.ts'
+    - any-glob-to-any-file: 'web/**/*.tsx'
+    - any-glob-to-any-file: 'web/**/*.css'
+    - any-glob-to-any-file: 'web/**/*.html'
+
+dependencies:
+  - changed-files:
+    - any-glob-to-any-file: 'requirements.txt'
+    - any-glob-to-any-file: 'web/package.json'
+
+beginner:
+  - head-branch: ['^beginner/', 'beginner/']
+
+intermediate:
+  - head-branch: ['^intermediate/', 'intermediate/']
+
+advanced:
+  - head-branch: ['^advanced/', 'advanced/']

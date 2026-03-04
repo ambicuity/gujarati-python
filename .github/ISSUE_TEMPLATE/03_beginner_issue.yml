@@ -1,0 +1,54 @@
+name: "🚀 Beginner Issue"
+description: A straightforward task for someone who has completed a Good First Issue
+title: "[Beginner Issue]: "
+labels: ["beginner", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Beginner Issue 🚀
+
+        If you've completed a Good First Issue or have some familiarity with the repository structure, this is the perfect next step.
+
+        **Beginner Issues are pre-approved by the maintainer.** You can claim it immediately by commenting `/assign`.
+
+        ---
+
+  - type: textarea
+    id: beginner-intro
+    attributes:
+      label: "🚀 Experience Level"
+      description: Pre-filled context — leave as-is unless you need to add task-specific notes.
+      value: |
+        This is a **Beginner Issue**. It is slightly more complex than a Good First Issue and may require changing logic across 2 files or updating an existing component.
+
+        > [!NOTE]
+        > ⏱️ **Typical time to complete:** 1–3 hours
+        > 🧩 **Difficulty:** Straightforward logic changes
+        > 🎓 **Best for:** Contributors who know the basic repo structure
+    validations:
+      required: false
+
+  - type: textarea
+    id: task
+    attributes:
+      label: "👾 Task Description"
+      description: Detail the problem and the expected outcome. Include file paths if known.
+      value: |
+        _Replace this with the specific task._
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "✅ Acceptance Criteria"
+      description: What must be true for this issue to be considered complete?
+      value: |
+        - [ ] Tests covering the new logical path are added and pass
+        - [ ] PR is linked to this issue with `Fixes #<number>`
+        - [ ] Code follows existing style guidelines
+    validations:
+      required: true

@@ -1,0 +1,55 @@
+name: "🚀 Intermediate Issue"
+description: A moderate task requiring familiarity with the parsing or evaluation core
+title: "[Intermediate Issue]: "
+labels: ["intermediate", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Intermediate Issue 🚀
+
+        This issue is suited for contributors who understand how `મુખ્ય.py` structures its logic and how AST parsing works in Gujarati Python.
+
+        **Intermediate Issues are pre-approved.** You can claim it immediately by commenting `/assign`.
+
+        ---
+
+  - type: textarea
+    id: intermediate-intro
+    attributes:
+      label: "🚀 Experience Level"
+      description: Pre-filled context — leave as-is unless you need to add task-specific notes.
+      value: |
+        This is an **Intermediate Issue**. It requires a solid grasp of how Gujarati keywords map to execution nodes, and might involve changing parsing algorithms or adding new data type support.
+
+        > [!NOTE]
+        > ⏱️ **Typical time to complete:** 3–8 hours
+        > 🧩 **Difficulty:** Touches multiple files or core parsing logic
+        > 🎓 **Best for:** Contributors who understand AST, lexing, or evaluation loops.
+    validations:
+      required: false
+
+  - type: textarea
+    id: task
+    attributes:
+      label: "👾 Task Description"
+      description: Detail the problem and the expected outcome.
+      value: |
+        _Replace this with the specific task._
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "✅ Acceptance Criteria"
+      description: What must be true for this issue to be considered complete?
+      value: |
+        - [ ] Core execution or parsing logic is implemented safely
+        - [ ] All comprehensive unit tests pass (`pytest`)
+        - [ ] Edge cases (e.g. nested expressions, unicode inputs) are tested
+        - [ ] New functionality (if any) is documented
+    validations:
+      required: true

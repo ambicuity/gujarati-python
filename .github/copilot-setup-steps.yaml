@@ -1,0 +1,27 @@
+# Copilot Coding Agent Setup
+
+# This file provisions the isolated Copilot coding agent environment.
+# It is equivalent to a "before all" block — run once before the agent starts working.
+
+steps:
+  - name: Set up Python 3.11
+    uses: actions/setup-python@v5
+    with:
+      python-version: '3.11'
+
+  - name: Install Node.js (for web playground)
+    uses: actions/setup-node@v4
+    with:
+      node-version: '20'
+
+  - name: Install dependencies
+    run: |
+      python -m pip install --upgrade pip
+      pip install pytest
+      cd web && npm install || true
+
+  - name: Verify environment
+    run: |
+      python --version
+      node --version
+      echo "✅ Environment ready for Copilot agent"

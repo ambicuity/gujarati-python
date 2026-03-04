@@ -1,0 +1,33 @@
+name: First Interaction Welcome
+
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  first-interaction:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/first-interaction@v3
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          issue_message: |
+            👋 Welcome, and thank you for opening your first issue on **ગુજરાતી પાઈથન (Gujarati Python)**!
+
+            A maintainer will review this shortly. In the meantime:
+            - Check the [CONTRIBUTING guide](../blob/main/CONTRIBUTING.md) for setup instructions
+            - Browse [existing issues](../../issues) to avoid duplicates
+
+            Every report and contribution helps make programming more accessible to Gujarati speakers. We appreciate you! 🚀
+          pr_message: |
+            👋 Thank you for your first pull request to **ગુજરાતી પાઈથન (Gujarati Python)**!
+
+            Our CI bots are running checks on your code now. A maintainer will review your changes shortly.
+
+            If you find this project useful, we'd love a ⭐️ — it helps other developers find our work. 🚀

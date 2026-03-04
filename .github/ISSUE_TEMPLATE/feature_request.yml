@@ -1,0 +1,64 @@
+name: "✨ Feature Request"
+description: Suggest a new language feature, keyword mapping, or web UI improvement
+title: "[Feature]: "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Thanks for suggesting a feature! ✨
+
+        Before submitting:
+        - Search [existing issues](https://github.com/ambicuity/gujarati-python/issues) to see if this has been discussed
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: "Problem"
+      description: What problem are you trying to solve? What currently doesn't work well?
+      placeholder: |
+        e.g. "I cannot write object-oriented classes natively in Gujarati Python right now..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: "Proposed Solution"
+      description: What do you propose? Be as specific as possible regarding syntax or library additions.
+      placeholder: |
+        e.g. "Add a `વર્ગ` mapping to `class` in the lexer and parser..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: What other approaches did you consider? Why is your proposal better?
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: "🏗️ Which area does this affect?"
+      options:
+        - "🤖 Core Language Parsing (મુખ્ય.py)"
+        - "🌐 Frontend / Web Playground (web/)"
+        - "🔁 GitHub Actions / CI-CD (.github/workflows/)"
+        - "🧪 Tests (ટેસ્ટ/)"
+        - "📚 Documentation (*.md)"
+        - "Other"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: "Constraints Check"
+      description: |
+        This project has hard architectural constraints. Please confirm your proposal respects them.
+      options:
+        - label: "This aligns with the goal of writing native Gujarati code, not introducing English abstractions."
+          required: true
+        - label: "I will not invent grammar; the mapping must translate clearly to underlying logic."
+          required: true

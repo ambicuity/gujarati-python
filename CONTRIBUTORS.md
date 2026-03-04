@@ -1,0 +1,6 @@
+[Ritesh Rana](https://github.com/ambicuity)
+[💻](https://github.com/ambicuity/gujarati-python/commits?author=ambicuity)
+[🚇](https://raw.githubusercontent.com/ambicuity/gujarati-python/main/CONTRIBUTORS.md#infra-ambicuity)
+[📖](https://github.com/ambicuity/gujarati-python/commits?author=ambicuity)
+[🚧](https://raw.githubusercontent.com/ambicuity/gujarati-python/main/CONTRIBUTORS.md#maintenance-ambicuity)
+[🤔](https://raw.githubusercontent.com/ambicuity/gujarati-python/main/CONTRIBUTORS.md#ideas-ambicuity)

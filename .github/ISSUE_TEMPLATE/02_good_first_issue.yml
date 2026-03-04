@@ -1,0 +1,103 @@
+name: "🌟 Good First Issue"
+description: A small, well-scoped task for contributors new to this repo
+title: "[Good First Issue]: "
+labels: ["good first issue", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Welcome to ગુજરાતી પાઈથન (Gujarati Python)! 🐘
+
+        This template creates a **Good First Issue** — a small, guided task that helps new
+        contributors learn the codebase and contribution workflow.
+
+        **Good First Issues are pre-approved by the maintainer.** A contributor can claim it
+        immediately by commenting `/assign`.
+
+        ---
+
+  - type: textarea
+    id: newcomer-intro
+    attributes:
+      label: "🆕 Newcomer Friendly"
+      description: Pre-filled onboarding context — leave as-is unless you need to add task-specific notes.
+      value: |
+        This is a **Good First Issue** — a guided, well-scoped task designed for contributors
+        who are new to this repository.
+
+        #### What you'll do
+        - ✅ Read a small part of the codebase
+        - ✅ Make a focused, well-defined change
+        - ✅ Write or extend a test
+        - ✅ Submit and merge a pull request
+
+        #### Support
+        The maintainer actively monitors Good First Issues and will respond to questions
+        within 24–48 hours.
+
+        > [!IMPORTANT]
+        > **This issue does not require deep language design experience.**
+        >
+        > - Basic Python/JS and Git are sufficient
+        > - You must be assigned before starting — comment `/assign` to claim this issue
+        > - Read [CONTRIBUTING.md](https://github.com/ambicuity/gujarati-python/blob/main/CONTRIBUTING.md)
+        >   before opening a PR
+
+        > [!NOTE]
+        > ⏱️ **Typical time to complete:** 30–90 minutes (once local setup is done)
+        > 🧩 **Difficulty:** Small, well-contained change
+        > 🎓 **Best for:** First-time contributors
+
+        **🏁 When this issue is complete, you will have:**
+        - ✅ A merged PR in a real open-source project
+        - ✅ Your name in the [Contributors List](https://github.com/ambicuity/gujarati-python/blob/main/CONTRIBUTORS.md)
+        - ✅ Confidence to take on larger issues next
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        > [!IMPORTANT]
+        > #### 📋 What makes a Good First Issue in this repo?
+        >
+        > **Often a good fit:**
+        > - Adding translation mapping for a simple Python standard library function
+        > - Fixing a typo or broken link in documentation or the website
+        > - Adding a test case for an existing, already-working function
+        > - Small CSS/UI improvements to the Web Playground
+        >
+        > **Not a good fit for GFI:**
+        > - Changes to the core lexer / AST syntax
+        > - Adding entire new framework support
+        > - Major refactors of `મુખ્ય.py`
+        >
+        > Those belong in **Beginner**, **Intermediate**, or **Advanced** issues.
+
+  - type: textarea
+    id: task
+    attributes:
+      label: "👾 Task Description"
+      description: |
+        Describe the task clearly enough for someone new to the codebase to understand and complete it.
+        Include the exact file and function to change. Provide a concrete before/after example where possible.
+      value: |
+        _Replace this with the specific task._
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "✅ Acceptance Criteria"
+      description: What must be true for this issue to be considered complete?
+      value: |
+        - [ ] The change is implemented in the correct file/function
+        - [ ] Existing tests still pass
+        - [ ] A test covering the new case is added (if applicable)
+        - [ ] PR is linked to this issue with `Fixes #<number>`
+        - [ ] PR title follows Conventional Commits format
+    validations:
+      required: true

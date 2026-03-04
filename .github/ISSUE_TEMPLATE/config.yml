@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Start a Discussion
+    url: https://github.com/ambicuity/gujarati-python/discussions
+    about: Questions, feedback, and general chat — use Discussions, not Issues
+  - name: 🔒 Report a Security Vulnerability
+    url: mailto:contact@riteshrana.engineer
+    about: Please email privately — do NOT open a public issue for security bugs
+  - name: ⭐ Star this repo
+    url: https://github.com/ambicuity/gujarati-python
+    about: Star to stay updated and help others discover Gujarati Python!

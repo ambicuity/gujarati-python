@@ -1,0 +1,55 @@
+name: "🔥 Advanced Issue"
+description: A complex task involving major architectural changes or core parsing rewrites
+title: "[Advanced Issue]: "
+labels: ["advanced", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Advanced Issue 🔥
+
+        This issue is for seasoned engineering contributors. It involves high-risk, high-impact changes to the way Gujarati Python executes code.
+
+        **Advanced Issues are pre-approved.** You can claim it immediately by commenting `/assign`.
+
+        ---
+
+  - type: textarea
+    id: advanced-intro
+    attributes:
+      label: "🔥 Experience Level"
+      description: Pre-filled context — leave as-is unless you need to add task-specific notes.
+      value: |
+        This is an **Advanced Issue**. It involves architectural decisions, language design (syntax extensions), or significant performance enhancements.
+
+        > [!NOTE]
+        > ⏱️ **Typical time to complete:** Multiple days or weeks
+        > 🧩 **Difficulty:** High-impact, structurally complex
+        > 🎓 **Best for:** Domain experts in parsers, compilers, or interpreters
+    validations:
+      required: false
+
+  - type: textarea
+    id: task
+    attributes:
+      label: "👾 Task Description"
+      description: Detail the problem, architecture constraints, and expected outcome.
+      value: |
+        _Replace this with the specific task._
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: "✅ Acceptance Criteria"
+      description: What must be true for this issue to be considered complete?
+      value: |
+        - [ ] The architectural change is robust and backward-compatible (or explicitly versioned)
+        - [ ] The entire test suite remains green
+        - [ ] Performance benchmarks are met or improved
+        - [ ] PR Title uses `feat!` or `refactor!` if a breaking change
+    validations:
+      required: true
