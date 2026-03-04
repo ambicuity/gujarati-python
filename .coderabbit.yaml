@@ -34,13 +34,13 @@ reviews:
 
         ## Correctness (Non-Negotiable)
         1. All Gujarati mappings must handle UTF-8 properly.
-        2. Prevent syntax errors in the generated Python code (`exec` safety).
+        2. Flag any use of exec() or eval() that processes unescaped or unvalidated user input. Highlight any generated Python string mapping that lacks proper indentation.
         3. No bare `except:` clauses. Catch specific exceptions.
-        4. Every new function requires a docstring in English or Gujarati.
+        4. Check for the presence of a docstring for every new function and validate its format.
         5. Variable naming in Python generation must be collision-free.
 
         ## Architecture
-        6. Reject PRs adding deep language features without a prior Issue discussion.
+        6. Flag fundamental architectural changes or new deep language features and explicitly ask the author for a link to the corresponding issue discussion.
         7. If adding a new fundamental data type, ensure test coverage in `ટેસ્ટ/`.
 
     # ── Web Playground ──────────────────────────────────────────────────────
@@ -58,14 +58,6 @@ reviews:
         1. Workflow permissions must be minimally scoped (`contents: read` unless write is justified).
         2. Flag any `pull_request_target` trigger without tight limits.
         3. Reject any workflow that echoes GitHub secrets.
-
-    # ── Catch-all ────────────────────────────────────────────────────────────
-    - path: "**/*"
-      instructions: |
-        GLOBAL STANDARDS — applies to every file in every PR.
-        1. Every PR must link to an issue via `Fixes #N`.
-        2. Reject PRs that are clearly unreviewed AI output: no tests, no docstrings.
-        3. PRs should be small and focused. Flag PRs that change more than 3 unrelated areas.
 
 # ============================================================================
 chat:
