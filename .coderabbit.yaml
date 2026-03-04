@@ -1,5 +1,5 @@
 # Docs: https://docs.coderabbit.ai/
-language: "en-US"
+language: "en-US" # USA English
 early_access: true
 
 # ============================================================================
@@ -12,8 +12,19 @@ issue_enrichment:
         - "plan-me"
 
 # ============================================================================
+knowledge_base: # Enable knowledge base access for up-to-date information
+  web_search: # Enable web search for up-to-date information
+    enabled: true
+  learnings:
+    scope: "auto"
+  issues:
+    scope: "auto"
+  pull_requests:
+    scope: "auto"
+
+# ============================================================================
 reviews:
-  profile: "assertive"
+  profile: "assertive" # Assertive profile yields more feedback, that may be considered nitpicky.
   request_changes_workflow: true
   assess_linked_issues: true
 
@@ -22,6 +33,35 @@ reviews:
     drafts: false
     base_branches:
       - "main"
+
+  # Noise reduction settings
+  high_level_summary: false # Do not summarise a pull request first as there is a walkthrough
+  review_status: false # Do not state what kind of review as performed or why (spammy)
+  commit_status: false # Do not state the review is in progress (spammy)
+  collapse_walkthrough: false # Provide a walkthrough for reviewers
+  related_issues: false # Do not suggest related issues (spammy)
+  related_prs: false # Do not suggest related PRs (spammy)
+  suggested_labels: false # Do not suggest labels for the PR (spammy)
+  suggested_reviewers: false # Do not suggest reviewers for the PR (spammy)
+  in_progress_fortune: false # Do not stall time with a message (spammy)
+  poem: false # Do not write a literal poem (spammy)
+  enable_prompt_for_ai_agents: false # Disable prompts for AI agents (spammy)
+
+  # ============================================================
+  # GLOBAL REVIEW INSTRUCTIONS (APPLY TO ALL FILES)
+  # ============================================================
+  instructions: |
+    You are a code reviewer whose primary responsibility is to verify that the code changes in this pull request fully address the specific requirements outlined in the associated issue description or pull request description.
+    
+    **ABSOLUTE RULES**
+    - Only provide review feedback that is directly relevant to the issue description or the pull request description.
+    - Do NOT propose improvements, refactors, or enhancements to the developer beyond what the PR explicitly claims to address.
+    
+    **SCOPE CONTROL**
+    - If you identify issues that are real but outside the PR's stated scope:
+      - Do NOT block the PR on them.
+      - Do NOT suggest fixes inline.
+      - Instead, aggregate all out-of-scope issues into a single comment with a list of recommendations for one or more follow-up issues that can be created.
 
   # ===== PATH-SPECIFIC REVIEW DIRECTIVES =====
   path_instructions:
@@ -51,23 +91,59 @@ reviews:
         2. Ensure mobile-responsive UI doesn't break.
         3. Do not add heavy NPM dependencies without justification.
 
+    # ── Unit Tests ───────────────────────────────────────────────────────────
+    - path: "ટેસ્ટ/**"
+      instructions: |
+        You are acting as a senior maintainer reviewing unit tests for the gujarati-python project. Your goal is to ensure tests are extensive, deterministic, and protect against breaking changes.
+
+        CRITICAL PRINCIPLES - Tests Must Fail Loudly & Deterministically:
+        - Tests must provide useful error messages when they fail for future debugging.
+        - No `print()` statements - use assertions with descriptive messages.
+        - No timing-dependent or unseeded random assertions.
+
+        EXPECTATIONS:
+        - Test constructor behavior with valid inputs, edge cases, and invalid inputs.
+        - Cover happy paths AND unhappy paths/edge cases.
+        - Avoid linter or formatting feedback. Focus on functional test coverage.
+
     # ── GitHub Actions Workflows ─────────────────────────────────────────────
     - path: ".github/workflows/**"
       instructions: |
-        SECURITY-CRITICAL. Apply zero-trust review.
+        You are reviewing GitHub Actions workflows as a thoughtful senior engineer. Your goal is to nudge contributors toward higher-quality, maintainable workflows.
+
+        SECURITY ESSENTIALS:
         1. Workflow permissions must be minimally scoped (`contents: read` unless write is justified).
         2. Flag any `pull_request_target` trigger without tight limits.
-        3. Reject any workflow that echoes GitHub secrets.
+        3. Flag any workflow that echoes GitHub secrets.
+        4. Treat all GitHub event data as potentially untrusted input: issue titles, bodies, comments, labels. Free-form user input must not flow directly into shell commands.
+
+        OPERATIONAL QUALITY & DRY-RUN
+        - Log key decisions and early exits — avoid silent skips.
+        - Avoid raw payload dumps and any secret or token leakage.
+
+    # ── Shell Scripts ────────────────────────────────────────────────────────
+    - path: ".github/scripts/**/*.sh"
+      instructions: |
+        Review shell scripts as production-grade CI automation.
+
+        Firm expectations:
+        - Use `set -euo pipefail` to fail fast on errors.
+        - Environment variables should be passed from the YAML, validated early, and defensively quoted.
+        - No `eval`, `bash -c`, backticks, or `$(...)` with untrusted content.
+        - Log key decisions and early exits.
+
+    # ── CODEOWNERS ───────────────────────────────────────────────────────────
+    - path: ".github/CODEOWNERS"
+      instructions: |
+        You are acting as a senior maintainer reviewing the CODEOWNERS file. This file controls review enforcement and repository governance.
+
+        Your role is to verify correctness, coverage, and organizational alignment — not formatting preferences.
+        1. Ensure teams used actually exist and have write permissions.
+        2. Verify directory matching syntax correctly uses `/**` (e.g., `/.github/workflows/**`).
+        3. Flag precedence errors (e.g. broad rule `*` after specific rules, last-match-wins missed).
+        4. Do NOT suggest stylistic formatting changes.
 
 # ============================================================================
 chat:
-  auto_reply: true
-
-# ============================================================================
-knowledge_base:
-  learnings:
-    scope: "auto"
-  issues:
-    scope: "auto"
-  pull_requests:
-    scope: "auto"
+  art: false # Don't draw ASCII art (false)
+  auto_reply: false # Don't allow bot to converse (spammy)
