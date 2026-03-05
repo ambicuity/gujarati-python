@@ -144,12 +144,4 @@ def પ્લેટફોર્મ_માહિતી_બતાવો():
 
 
 if __name__ == "__main__":
-    print("=" * 60)
-    print("ગુજરાતી પાઈથન - પ્લેટફોર્મ સુસંગતતા ટેસ્ટ")  
-    print("=" * 60)
     print()
-    
-    પ્લેટફોર્મ_માહિતી_બતાવો()
-    
-    # Run unit tests
-    unittest.main(verbosity=2, buffer=True)
