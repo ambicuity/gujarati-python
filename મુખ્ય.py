@@ -24,7 +24,7 @@ except ImportError:
 # પ્રોજેક્ટ પાથ ઉમેરો
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from ગુજરાતી_પાઈથન import કોડ_અનુવાદ_કરો, ગુજરાતી_કોડ_ચલાવો, ગુજરાતી_હેલ્પ
+from ગુજરાતી_પાઈથન import કોડ_અનુવાદ_કરો, ગુજરાતી_કોડ_ચલાવો, ગુજરાતી_હેલ્પ, __version__
 from ગુજરાતી_પાઈથન.સહાયકો import કીવર્ડ_લિસ્ટ, કીવર્ડ_સર્ચ
 from ગુજરાતી_પાઈથન.ભૂલ_અનુવાદક import કસ્ટમ_એક્સેપ્શન_હુક
 from ગુજરાતી_પાઈથન.શીખો import શીખવાનું_શરૂ_કરો
@@ -232,6 +232,7 @@ def main():
     )
     
     parser.add_argument('file', nargs='?', help='ચલાવવાની ગુજરાતી પાઈથન ફાઈલ')
+    parser.add_argument('-v', '--version', '--આવૃત્તિ', action='store_true', help='આવૃત્તિ બતાવો')
     parser.add_argument('-i', '--interactive', action='store_true', help='ઈન્ટરએક્ટિવ મોડ')
     parser.add_argument('-k', '--keywords', action='store_true', help='કીવર્ડ્સની યાદી બતાવો')
     parser.add_argument('-s', '--search', metavar='TERM', help='કીવર્ડ શોધો')
@@ -240,6 +241,11 @@ def main():
     parser.add_argument('-l', '--learn', '--શીખો', action='store_true', help='ઈન્ટરએક્ટિવ શીખવાનો મોડ')
     
     args = parser.parse_args()
+    
+    # આવૃત્તિ બતાવો
+    if args.version:
+        print(f"ગુજરાતી પાઈથન {__version__}")
+        return
     
     # શીખવાનો મોડ
     if args.learn:
