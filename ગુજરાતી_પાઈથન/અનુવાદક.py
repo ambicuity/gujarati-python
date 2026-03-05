@@ -13,12 +13,34 @@ import re
 import sys
 import token
 import tokenize
-from typing import List, Tuple
+from dataclasses import dataclass, field
+from typing import Dict, List, Tuple
 
 # Python 3.12+ tokenizer correctly handles Gujarati combining marks
 # (Unicode category Mc — e.g. ા, ો). Older versions produce ERRORTOKEN
 # for these characters, breaking tokenization of Gujarati identifiers.
 _USE_TOKENIZE = sys.version_info >= (3, 12)
+
+
+@dataclass
+class TranslationResult:
+    """
+    Holds the translated Python code alongside a source map that maps
+    generated-Python line numbers back to the original Gujarati source.
+
+    Attributes:
+        code:      The translated English Python source.
+        line_map:  Dict[generated_line, original_gpy_line] (1-indexed).
+                   For the tokenizer path this is always identity because
+                   keyword substitution never inserts or removes newlines.
+        col_delta: Dict[line_no, net_col_shift] — cumulative character
+                   count delta introduced by replacements on that line.
+                   Used to reconstruct the precise Gujarati column from a
+                   reported Python column offset (e.g. in SyntaxError).
+    """
+    code: str
+    line_map: Dict[int, int] = field(default_factory=dict)
+    col_delta: Dict[int, int] = field(default_factory=dict)
 
 
 class કીવર્ડ_અનુવાદક:
@@ -310,28 +332,49 @@ class કીવર્ડ_અનુવાદક:
 
     def ગુજરાતીથી_અંગ્રેજી(self, કોડ: str) -> str:
         """
-        ગુજરાતી કોડને અંગ્રેજી પાઈથન કોડમાં કન્વર્ટ કરે છે
+        ગુજરાતી કોડને અંગ્રેજી પાઈથન કોડમાં કન્વર્ટ કરે છે.
+        Source map discarded — use ગુજરાતીથી_અંગ્રેજી_સ_નકશો for traceback remapping.
+        """
+        if _USE_TOKENIZE:
+            return self._tokenize_translate(કોડ)
+        return self._regex_translate(કોડ)
 
-        Python 3.12+ પર tokenize મોડ્યુલ દ્વારા ટોકન-લેવલ અનુવાદ.
-        Python 3.8-3.11 પર regex-આધારિત string replacement (tokenizer
-        Gujarati combining marks ને ERRORTOKEN ગણે છે).
+    def ગુજરાતીથી_અંગ્રેજી_સ_નકશો(self, કોડ: str) -> 'TranslationResult':
+        """
+        ગુજરાતી કોડને Python કોડ + source map સાથે કન્વર્ટ કરે છે.
+
+        Invariant: keyword substitution never inserts or removes newlines,
+        so line_map is 1-indexed identity (generated_line == original_line).
+        Column offsets for each line are tracked via col_delta.
 
         પેરામીટર:
             કોડ (str): ગુજરાતી પાઈથન કોડ
 
         પરત આપે:
-            str: અંગ્રેજી પાઈથન કોડ
+            TranslationResult: translated code + line_map + col_delta
         """
         if _USE_TOKENIZE:
-            return self._tokenize_translate(કોડ)
-        return self._regex_translate(કોડ)
+            return self._tokenize_translate_with_map(કોડ)
+        # Regex path: no token positions available — identity map
+        translated = self._regex_translate(કોડ)
+        n_lines = translated.count('\n') + 1
+        return TranslationResult(
+            code=translated,
+            line_map={i: i for i in range(1, n_lines + 1)},
+            col_delta={},
+        )
 
     # ------------------------------------------------------------------
     # Strategy 1: tokenize-based (Python 3.12+)
     # ------------------------------------------------------------------
 
     def _tokenize_translate(self, કોડ: str) -> str:
-        """Token-level Gujarati→English translation (Python 3.12+)."""
+        """Token-level Gujarati→English translation (Python 3.12+). No source map."""
+        result = self._tokenize_translate_with_map(કોડ)
+        return result.code
+
+    def _tokenize_translate_with_map(self, કોડ: str) -> 'TranslationResult':
+        """Token-level translation returning code + source map (Python 3.12+)."""
         try:
             tokens = list(
                 tokenize.generate_tokens(io.StringIO(કોડ).readline)
@@ -397,7 +440,26 @@ class કીવર્ડ_અનુવાદક:
 
             i += 1
 
-        return self._apply_replacements(કોડ, replacements)
+        translated_code = self._apply_replacements(કોડ, replacements)
+
+        # Build source map.
+        # Invariant: keyword substitution never inserts or removes '\n',
+        # so every generated line N maps to original line N.
+        n_lines = translated_code.count('\n') + 1
+        line_map: Dict[int, int] = {i: i for i in range(1, n_lines + 1)}
+
+        # Track net column delta per line caused by replacements on that line.
+        col_delta: Dict[int, int] = {}
+        for sr, sc, er, ec, new_text in replacements:
+            if sr == er:  # single-line replacement
+                delta = len(new_text) - (ec - sc)
+                col_delta[sr] = col_delta.get(sr, 0) + delta
+
+        return TranslationResult(
+            code=translated_code,
+            line_map=line_map,
+            col_delta=col_delta,
+        )
 
     # ------------------------------------------------------------------
     # Strategy 2: regex-based (Python 3.8-3.11 fallback)

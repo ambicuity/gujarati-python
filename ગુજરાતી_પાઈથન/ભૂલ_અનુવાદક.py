@@ -4,6 +4,7 @@
 આ મોડ્યુલ Python ના સ્ટાન્ડર્ડ એરર મેસેજીસને ગુજરાતીમાં અનુવાદ કરે છે.
 """
 
+import re
 import sys
 import traceback
 
@@ -48,9 +49,18 @@ class ભૂલ_અનુવાદક:
             'No module named \'{}\'': "'{}' નામનું કોઈ મોડ્યુલ નથી",
         }
 
-    def ગુજરાતી_એરર_મેળવો(self, exc_type, exc_value, exc_traceback):
+    def ગુજરાતી_એરર_મેળવો(
+        self,
+        exc_type,
+        exc_value,
+        exc_traceback,
+        gpy_source: str = "",
+        line_map: dict = None,
+    ) -> str:
         """
-        Exception ને ગુજરાતીમાં ફોર્મેટ કરે છે
+        Exception ને ગુજરાતીમાં ફોરમેટ કરે છે.
+        gpy_source: original Gujarati source (for back-translating keyword names in messages).
+        line_map: Dict[generated_line, gpy_line] for column-level remapping (currently unused, reserved).
         """
         exception_name = exc_type.__name__
         exception_msg = str(exc_value)
@@ -59,14 +69,23 @@ class ભૂલ_અનુવાદક:
         ગુજરાતી_નામ = self.એરર_મેપ.get(exception_name, exception_name)
         
         # 2. એરર મેસેજ ગુજરાતીમાં (જો શક્ય હોય તો)
-        # સાદા રિપ્લેસમેન્ટ માટે પ્રયત્ન કરો
         ગુજરાતી_મેસેજ = exception_msg
         
         if exception_msg == 'division by zero':
-             ગુજરાતી_મેસેજ = 'શૂન્ય વડે ભાગાકાર શક્ય નથી'
+            ગુજરાતી_મેસેજ = 'શૂન્ય વડે ભાગાકાર શક્ય નથી'
         
-        # TODO: વધુ જટિલ મેસેજ ટ્રાન્સલેશન માટે અહીં logic ઉમેરી શકાય
-        # ઉ.દા. regex વાપરીને dynamic values સાથે મેચ કરવું
+        # 3. Back-translate English keyword names embedded in the error message.
+        # e.g. NameError: name 'print' is not defined  →  "name 'છાપો' is not defined"
+        # Only keywords are back-translated; arbitrary identifiers stay as-is.
+        try:
+            from .અનુવાદક import _અનુવાદક
+            for eng_kw, guj_kw in _અનુવાદક.રિવર્સ_મેપ.items():
+                # Match 'keyword' with surrounding quotes inside the message
+                quoted = f"'{eng_kw}'"
+                if quoted in ગુજરાતી_મેસેજ:
+                    ગુજરાતી_મેસેજ = ગુજરાતી_મેસેજ.replace(quoted, f"'{guj_kw}'")
+        except Exception:
+            pass  # Never crash the error reporter itself
         
         return f"{ગુજરાતી_નામ}: {ગુજરાતી_મેસેજ}"
 
