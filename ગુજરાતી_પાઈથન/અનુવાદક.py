@@ -319,9 +319,9 @@ class કીવર્ડ_અનુવાદક:
             tokens = list(
                 tokenize.generate_tokens(io.StringIO(કોડ).readline)
             )
-        except tokenize.TokenError:
-            # Incomplete input (unclosed string / bracket) — tokenize
-            # as far as possible, then fall through with partial tokens.
+        except (tokenize.TokenError, Exception):
+            # Catch any tokenizer error (TokenError, IndentationError,
+            # etc.) — tokenize as far as possible with partial tokens.
             tokens = self._safe_tokenize(કોડ)
 
         # Collect positional replacements: (start_row, start_col,
@@ -411,7 +411,7 @@ class કીવર્ડ_અનુવાદક:
             tokens = list(
                 tokenize.generate_tokens(io.StringIO(કોડ).readline)
             )
-        except tokenize.TokenError:
+        except (tokenize.TokenError, Exception):
             tokens = self._safe_tokenize(કોડ)
 
         replacements: List[Tuple[int, int, int, int, str]] = []
@@ -451,7 +451,7 @@ class કીવર્ડ_અનુવાદક:
         try:
             for tok in tokenize.generate_tokens(io.StringIO(કોડ).readline):
                 result.append(tok)
-        except tokenize.TokenError:
+        except (tokenize.TokenError, Exception):
             pass
         return result
 
@@ -484,7 +484,6 @@ class કીવર્ડ_અનુવાદક:
                 if t.type in (
                     token.NL, token.NEWLINE, token.INDENT,
                     token.DEDENT, token.COMMENT,
-                    tokenize.NL,
                 ):
                     j += 1
                     continue
@@ -558,7 +557,10 @@ class કીવર્ડ_અનુવાદક:
                  self._single_keywords[tok.string])
             )
 
-        # 3. Right side: method map (with '(' check) or keyword
+        # 3. Right side: method map (with '(' check)
+        # NOTE: Do NOT translate generic keywords after a dot — that
+        # would incorrectly convert e.g. obj.છાપો to obj.print.
+        # Only known methods (with '(' lookahead) are translated.
         if right_tok.string in self.મેથડ_મેપ:
             paren = self._peek_op(tokens, j + 1, '(')
             if paren is not None:
@@ -567,12 +569,6 @@ class કીવર્ડ_અનુવાદક:
                      self.મેથડ_મેપ[right_tok.string])
                 )
                 consumed.add(j)
-        elif right_tok.string in self._single_keywords:
-            replacements.append(
-                (*right_tok.start, *right_tok.end,
-                 self._single_keywords[right_tok.string])
-            )
-            consumed.add(j)
 
         consumed.add(i)
         return j + 1
@@ -587,8 +583,11 @@ class કીવર્ડ_અનુવાદક:
             t = tokens[j]
             if t.type == token.NAME:
                 return (j,)
-            if t.type in (token.NL, tokenize.NL, token.NEWLINE,
-                          token.INDENT, token.DEDENT, token.COMMENT):
+            # Skip whitespace / formatting tokens
+            if t.type in (
+                token.NL, token.NEWLINE, token.INDENT,
+                token.DEDENT, token.COMMENT,
+            ):
                 j += 1
                 continue
             return None
@@ -602,8 +601,11 @@ class કીવર્ડ_અનુવાદક:
             t = tokens[j]
             if t.type == token.OP and t.string == op:
                 return j
-            if t.type in (token.NL, tokenize.NL, token.NEWLINE,
-                          token.INDENT, token.DEDENT, token.COMMENT):
+            # Skip whitespace / formatting tokens
+            if t.type in (
+                token.NL, token.NEWLINE, token.INDENT,
+                token.DEDENT, token.COMMENT,
+            ):
                 j += 1
                 continue
             return None
@@ -639,36 +641,53 @@ class કીવર્ડ_અનુવાદક:
 
         content = rest[:-len(quote)]
 
-        # Find {expr} blocks and translate keywords inside them
+        # Find {expr} blocks and translate keywords inside them.
+        # Use a while-loop to correctly advance past escaped {{ and }}.
         new_parts: list = []
         pos = 0
-        depth = 0
-        expr_start = -1
-
-        for ci, ch in enumerate(content):
-            if ch == '{' and depth == 0:
+        ci = 0
+        while ci < len(content):
+            ch = content[ci]
+            if ch == '{':
                 if ci + 1 < len(content) and content[ci + 1] == '{':
-                    # Escaped {{ — skip
+                    # Escaped '{{' — treat as literal, skip both
+                    ci += 2
                     continue
-                new_parts.append(content[pos:ci + 1])
+                # Start of an expression
+                new_parts.append(content[pos:ci])
                 expr_start = ci + 1
                 depth = 1
-            elif ch == '{' and depth > 0:
-                depth += 1
-            elif ch == '}' and depth > 0:
-                depth -= 1
+                ji = expr_start
+                while ji < len(content):
+                    if content[ji] == '{':
+                        depth += 1
+                    elif content[ji] == '}':
+                        depth -= 1
+                        if depth == 0:
+                            break
+                    ji += 1
                 if depth == 0:
-                    expr = content[expr_start:ci]
+                    expr = content[expr_start:ji]
                     translated_expr = self._translate_fstring_expr(expr)
-                    new_parts.append(translated_expr)
-                    new_parts.append('}')
-                    pos = ci + 1
-            elif ch == '}' and depth == 0:
+                    new_parts.append('{' + translated_expr + '}')
+                    pos = ji + 1
+                    ci = ji + 1
+                else:
+                    # Unmatched '{' — stop parsing
+                    pos = ci
+                    break
+            elif ch == '}':
                 if ci + 1 < len(content) and content[ci + 1] == '}':
-                    continue  # Escaped }}
+                    # Escaped '}}' — treat as literal, skip both
+                    ci += 2
+                    continue
+                ci += 1
+            else:
+                ci += 1
 
         # Remaining content after last expression
-        new_parts.append(content[pos:])
+        if pos < len(content):
+            new_parts.append(content[pos:])
 
         return prefix + ''.join(new_parts) + quote
 
@@ -721,7 +740,7 @@ class કીવર્ડ_અનુવાદક:
         if not replacements:
             return source
 
-        lines = source.splitlines(True)
+        lines = source.splitlines(keepends=True)
 
         # Sort bottom-right → top-left so we can apply in reverse
         replacements.sort(
