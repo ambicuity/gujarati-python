@@ -9,7 +9,7 @@
 
 import sys
 import os
-import unittest
+import pytest
 
 # પ્રોજેક્ટ પાથ ઉમેરો
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -17,12 +17,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 from ગુજરાતી_પાઈથન.અનુવાદક import કીવર્ડ_અનુવાદક, કોડ_અનુવાદ_કરો, વેલિડેશન_કરો
 
 
-class ટેસ્ટ_કીવર્ડ_અનુવાદક(unittest.TestCase):
+class ટેસ્ટ_કીવર્ડ_અનુવાદક:
     """
     કીવર્ડ અનુવાદકના ટેસ્ટ
     """
     
-    def setUp(self):
+    def setup_method(self):
         """
         ટેસ્ટ માટે સેટઅપ
         """
@@ -49,7 +49,7 @@ def નમસ્કાર():
         """.strip()
         
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
     
     def test_control_structures(self):
         """
@@ -70,7 +70,7 @@ else:
         """.strip()
         
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
     
     def test_loops(self):
         """
@@ -97,7 +97,7 @@ while સંખ્યા < 3:
         """.strip()
         
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
     
     def test_class_definition(self):
         """
@@ -122,7 +122,7 @@ class ટેસ્ટ:
         """.strip()
         
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
     
     def test_import_statements(self):
         """
@@ -141,7 +141,7 @@ import numpy as np
         """.strip()
         
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
     
     def test_exception_handling(self):
         """
@@ -166,7 +166,7 @@ finally:
         """.strip()
         
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
     
     def test_reverse_translation(self):
         """
@@ -185,7 +185,7 @@ def test():
         """.strip()
         
         પરિણામ = self.અનુવાદક.અંગ્રેજીથી_ગુજરાતી(અંગ્રેજી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
     
     def test_validation(self):
         """
@@ -194,15 +194,15 @@ def test():
         # સાચો કોડ
         સાચો_કોડ = "ડેફ ટેસ્ટ(): છાપો('હેલો')"
         errors = વેલિડેશન_કરો(સાચો_કોડ)
-        self.assertEqual(len(errors), 0)
+        assert len(errors) == 0
 
 
-class ટેસ્ટ_યાદી_મેથડ્સ(unittest.TestCase):
+class ટેસ્ટ_યાદી_મેથડ્સ:
     """
     યાદી (list) મેથડ મેપિંગ ટેસ્ટ — Issue #30
     """
 
-    def setUp(self):
+    def setup_method(self):
         self.અનુવાદક = કીવર્ડ_અનુવાદક()
 
     def test_append_basic(self):
@@ -210,21 +210,21 @@ class ટેસ્ટ_યાદી_મેથડ્સ(unittest.TestCase):
         ગુજરાતી_કોડ = 'ફળો.ઉમેરો("સફરજન")'
         અપેક્ષિત = 'ફળો.append("સફરજન")'
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
 
     def test_pop_basic(self):
         """કાઢો → pop મૂળભૂત ટેસ્ટ"""
         ગુજરાતી_કોડ = 'ફળો.કાઢો()'
         અપેક્ષિત = 'ફળો.pop()'
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
 
     def test_pop_with_index(self):
         """કાઢો(0) → pop(0) ઇન્ડેક્સ સાથે"""
         ગુજરાતી_કોડ = 'ફળો.કાઢો(0)'
         અપેક્ષિત = 'ફળો.pop(0)'
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
 
     def test_append_in_loop(self):
         """લૂપ અંદર ઉમેરો ટેસ્ટ"""
@@ -235,17 +235,17 @@ class ટેસ્ટ_યાદી_મેથડ્સ(unittest.TestCase):
 for i in range(5):
     ફળો.append(i)""".strip()
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
 
     def test_method_with_variable_prefix(self):
         """કોઈપણ વેરિએબલ નામ સાથે મેથડ ટેસ્ટ"""
         ગુજરાતી_કોડ = 'મારી_યાદી.ઉમેરો(42)'
         અપેક્ષિત = 'મારી_યાદી.append(42)'
         પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
 
 
-class ટેસ્ટ_ગ્લોબલ_ફંક્શન્સ(unittest.TestCase):
+class ટેસ્ટ_ગ્લોબલ_ફંક્શન્સ:
     """
     ગ્લોબલ ફંક્શન્સના ટેસ્ટ
     """
@@ -258,18 +258,6 @@ class ટેસ્ટ_ગ્લોબલ_ફંક્શન્સ(unittest.TestC
         અપેક્ષિત = "print('નમસ્તે')"
         
         પરિણામ = કોડ_અનુવાદ_કરો(ગુજરાતી_કોડ)
-        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+        assert પરિણામ.strip() == અપેક્ષિત.strip()
 
 
-if __name__ == '__main__':
-    # સિસ્ટમ એન્કોડિંગ સેટ કરો
-    if hasattr(sys.stdout, 'reconfigure'):
-        sys.stdout.reconfigure(encoding='utf-8')
-    if hasattr(sys.stderr, 'reconfigure'):
-        sys.stderr.reconfigure(encoding='utf-8')
-    
-    print("ગુજરાતી અનુવાદક ટેસ્ટ શરૂ કરી રહ્યા છીએ...")
-    print("=" * 50)
-    
-    # ટેસ્ટ ચલાવો
-    unittest.main(verbosity=2, buffer=True)
