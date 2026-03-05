@@ -10,9 +10,15 @@
 
 import io
 import re
+import sys
 import token
 import tokenize
 from typing import List, Tuple
+
+# Python 3.12+ tokenizer correctly handles Gujarati combining marks
+# (Unicode category Mc — e.g. ા, ો). Older versions produce ERRORTOKEN
+# for these characters, breaking tokenization of Gujarati identifiers.
+_USE_TOKENIZE = sys.version_info >= (3, 12)
 
 
 class કીવર્ડ_અનુવાદક:
@@ -306,8 +312,9 @@ class કીવર્ડ_અનુવાદક:
         """
         ગુજરાતી કોડને અંગ્રેજી પાઈથન કોડમાં કન્વર્ટ કરે છે
 
-        Python ના tokenize મોડ્યુલ દ્વારા ટોકન-લેવલ અનુવાદ કરે છે.
-        STRING અને COMMENT ટોકન્સ અકબંધ રહે છે.
+        Python 3.12+ પર tokenize મોડ્યુલ દ્વારા ટોકન-લેવલ અનુવાદ.
+        Python 3.8-3.11 પર regex-આધારિત string replacement (tokenizer
+        Gujarati combining marks ને ERRORTOKEN ગણે છે).
 
         પેરામીટર:
             કોડ (str): ગુજરાતી પાઈથન કોડ
@@ -315,19 +322,25 @@ class કીવર્ડ_અનુવાદક:
         પરત આપે:
             str: અંગ્રેજી પાઈથન કોડ
         """
+        if _USE_TOKENIZE:
+            return self._tokenize_translate(કોડ)
+        return self._regex_translate(કોડ)
+
+    # ------------------------------------------------------------------
+    # Strategy 1: tokenize-based (Python 3.12+)
+    # ------------------------------------------------------------------
+
+    def _tokenize_translate(self, કોડ: str) -> str:
+        """Token-level Gujarati→English translation (Python 3.12+)."""
         try:
             tokens = list(
                 tokenize.generate_tokens(io.StringIO(કોડ).readline)
             )
-        except (tokenize.TokenError, Exception):
-            # Catch any tokenizer error (TokenError, IndentationError,
-            # etc.) — tokenize as far as possible with partial tokens.
+        except Exception:
             tokens = self._safe_tokenize(કોડ)
 
-        # Collect positional replacements: (start_row, start_col,
-        #   end_row, end_col, replacement_text)
         replacements: List[Tuple[int, int, int, int, str]] = []
-        consumed: set = set()  # indices already handled
+        consumed: set = set()
         i = 0
 
         while i < len(tokens):
@@ -337,9 +350,7 @@ class કીવર્ડ_અનુવાદક:
 
             tok = tokens[i]
 
-            # --- NAME tokens: keywords, modules, dotted paths ---
             if tok.type == token.NAME:
-                # 1. Multi-word keyword lookahead
                 handled = self._try_multi_word(
                     tokens, i, consumed, replacements
                 )
@@ -347,7 +358,6 @@ class કીવર્ડ_અનુવાદક:
                     i = handled
                     continue
 
-                # 2. Dotted path: NAME . NAME
                 dot_result = self._try_dotted_path(
                     tokens, i, consumed, replacements
                 )
@@ -355,7 +365,6 @@ class કીવર્ડ_અનુવાદક:
                     i = dot_result
                     continue
 
-                # 3. Simple keyword / module-name / builtin
                 replacement = (
                     self._single_keywords.get(tok.string)
                     or self.મોડ્યુલ_નામ_મેપ.get(tok.string)
@@ -365,14 +374,12 @@ class કીવર્ડ_અનુવાદક:
                         (*tok.start, *tok.end, replacement)
                     )
 
-            # --- OP('.') followed by NAME: method mapping ---
             elif tok.type == token.OP and tok.string == '.':
                 next_name = self._peek_name(tokens, i + 1)
                 if next_name is not None:
-                    j = next_name[0]  # index
+                    j = next_name[0]
                     name_tok = tokens[j]
                     if name_tok.string in self.મેથડ_મેપ:
-                        # Confirm followed by '('
                         paren = self._peek_op(tokens, j + 1, '(')
                         if paren is not None:
                             replacements.append(
@@ -381,7 +388,6 @@ class કીવર્ડ_અનુવાદક:
                             )
                             consumed.add(j)
 
-            # --- STRING: f-string compat for Python ≤ 3.11 ---
             elif tok.type == token.STRING:
                 processed = self._process_fstring_token(tok.string)
                 if processed != tok.string:
@@ -392,6 +398,136 @@ class કીવર્ડ_અનુવાદક:
             i += 1
 
         return self._apply_replacements(કોડ, replacements)
+
+    # ------------------------------------------------------------------
+    # Strategy 2: regex-based (Python 3.8-3.11 fallback)
+    # ------------------------------------------------------------------
+
+    def _regex_translate(self, કોડ: str) -> str:
+        """Regex-based Gujarati→English translation (Python < 3.12)."""
+        અનુવાદિત_કોડ = કોડ
+
+        # 1. Module function mappings (dotted paths — longest first)
+        for ગુજ_પાથ, ઇંગ_પાથ in self.મોડ્યુલ_ફંક્શન_મેપ.items():
+            parts = ગુજ_પાથ.split('.')
+            if len(parts) == 2:
+                mod, func = parts
+                patt = (
+                    re.escape(mod) + r'\.' + re.escape(func)
+                    + r'(?=\s|[(){}\[\]:,]|$)'
+                )
+                અનુવાદિત_કોડ = re.sub(patt, ઇંગ_પાથ, અનુવાદિત_કોડ)
+
+        # 2. Method mappings (.ઉમેરો() → .append())
+        for ગુજ_મેથડ, ઇંગ_મેથડ in self.મેથડ_મેપ.items():
+            patt = r'\.' + re.escape(ગુજ_મેથડ) + r'(?=\s*\()'
+            અનુવાદિત_કોડ = re.sub(patt, '.' + ઇંગ_મેથડ, અનુવાદિત_કોડ)
+
+        # 3. Module names: dotted usage (ગણિત.sqrt) and import statements
+        sorted_modules = sorted(
+            self.મોડ્યુલ_નામ_મેપ.items(),
+            key=lambda x: len(x[0]), reverse=True,
+        )
+        for ગુજ_મોડ, ઇંગ_મોડ in sorted_modules:
+            # Dotted usage: ગણિત.xxx → math.xxx
+            પેટર્ન = r'\b' + re.escape(ગુજ_મોડ) + r'\.'
+            અનુવાદિત_કોડ = re.sub(પેટર્ન, ઇંગ_મોડ + '.', અનુવાદિત_કોડ)
+
+        # Standalone module names in import lines
+        for line in અનુવાદિત_કોડ.split('\n'):
+            if 'import ' in line or 'ઈમ્પોર્ટ' in line:
+                for ગુજ_મોડ, ઇંગ_મોડ in sorted_modules:
+                    if ગુજ_મોડ in line:
+                        new_line = line.replace(ગુજ_મોડ, ઇંગ_મોડ)
+                        અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(
+                            line, new_line, 1
+                        )
+                        line = new_line  # update for next iteration
+
+        # 4. Protect string literals (but translate keywords in f-strings)
+        સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ = {}
+        પ_કાઉન્ટ = 0
+        સ્ટ્રિંગ_પેટર્ન્સ = [
+            (r'"""([^"]|"[^"]|""[^"])*"""', 'triple_double'),
+            (r"'''([^']|'[^']|''[^'])*'''", 'triple_single'),
+            (r'(?<!f)"([^"\n\\]*(\\.[^"\n\\]*)*)"', 'double'),
+            (r"(?<!f)'([^'\n\\]*(\\.[^'\n\\]*)*)'", 'single'),
+            (r'f"([^"\n\\]*(\\.[^"\n\\]*)*)"', 'f_double'),
+            (r"f'([^'\n\\]*(\\.[^'\n\\]*)*)'", 'f_single'),
+        ]
+
+        for પેટર્ન, qtype in સ્ટ્રિંગ_પેટર્ન્સ:
+            matches = list(re.finditer(પેટર્ન, અનુવાદિત_કોડ, re.DOTALL))
+            for match in reversed(matches):
+                ph = f"__STR_{qtype}_{પ_કાઉન્ટ}__"
+                સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ[ph] = match.group(0)
+                અનુવાદિત_કોડ = (
+                    અનુવાદિત_કોડ[:match.start()]
+                    + ph
+                    + અનુવાદિત_કોડ[match.end():]
+                )
+                પ_કાઉન્ટ += 1
+
+        # 5. Keyword translation (longest first)
+        keyword_list = sorted(
+            self.કીવર્ડ_મેપ.keys(), key=len, reverse=True
+        )
+        self._regex_keyword_subs = keyword_list  # stash for f-string reuse
+
+        for guj_kw in keyword_list:
+            eng_kw = self.કીવર્ડ_મેપ[guj_kw]
+            lines = અનુવાદિત_કોડ.split('\n')
+            new_lines = []
+            for line in lines:
+                if guj_kw in line:
+                    patt = (
+                        r'(?<![a-zA-Z0-9_])' + re.escape(guj_kw)
+                        + r'(?=\s|[(){}\[\]:,]|$)'
+                    )
+                    line = re.sub(patt, eng_kw, line)
+                new_lines.append(line)
+            અનુવાદિત_કોડ = '\n'.join(new_lines)
+
+        # 6. Restore string placeholders (f-strings get keyword translation)
+        for ph, orig in reversed(list(સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ.items())):
+            if 'f_double' in ph or 'f_single' in ph:
+                processed = self._regex_process_fstring(orig, keyword_list)
+                અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(ph, processed)
+            else:
+                અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(ph, orig)
+
+        return અનુવાદિત_કોડ
+
+    def _regex_process_fstring(
+        self, fstr: str, keyword_list: list
+    ) -> str:
+        """Translate keywords inside f-string expressions for regex path."""
+        if fstr.startswith('f"'):
+            qchar = '"'
+            content = fstr[2:-1]
+        elif fstr.startswith("f'"):
+            qchar = "'"
+            content = fstr[2:-1]
+        else:
+            return fstr
+
+        expr_pattern = r'\{([^}]+)\}'
+        expressions = re.findall(expr_pattern, content)
+        processed = content
+        for expr in expressions:
+            translated = expr
+            for guj_kw in keyword_list:
+                if guj_kw in translated:
+                    eng_kw = self.કીવર્ડ_મેપ[guj_kw]
+                    patt = (
+                        r'(?<![a-zA-Z0-9_])' + re.escape(guj_kw)
+                        + r'(?=\s|[(){}\[\]:,]|$)'
+                    )
+                    translated = re.sub(patt, eng_kw, translated)
+            processed = processed.replace(
+                '{' + expr + '}', '{' + translated + '}'
+            )
+        return f'f{qchar}{processed}{qchar}'
 
     # ------------------------------------------------------------------
     # ટોકનાઇઝેશન-આધારિત અનુવાદ (English → Gujarati)
