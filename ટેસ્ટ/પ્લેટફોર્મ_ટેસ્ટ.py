@@ -128,9 +128,9 @@ class પ્લેટફોર્મ_સુસંગતતા_ટેસ્ટ:
             assert "છાપો" in result.stdout, "Keywords output not working properly"
             
         except subprocess.TimeoutExpired:
-            self.skipTest("CLI test timed out")
+            pytest.skip("CLI test timed out")
         except Exception as e:
-            self.skipTest(f"CLI test failed due to: {e}")
+            pytest.skip(f"CLI test failed due to: {e}")
 
 
 def પ્લેટફોર્મ_માહિતી_બતાવો():
