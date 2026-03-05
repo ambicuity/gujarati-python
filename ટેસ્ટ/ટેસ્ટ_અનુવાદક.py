@@ -293,3 +293,69 @@ class ટેસ્ટ_ગ્લોબલ_ફંક્શન્સ:
         
         પરિણામ = કોડ_અનુવાદ_કરો(ગુજરાતી_કોડ)
         assert પરિણામ.strip() == અપેક્ષિત.strip()
+
+
+from ગુજરાતી_પાઈથન.અનુવાદક import TranslationResult, _અનુવાદક
+from ગુજરાતી_પાઈથન import ગુજરાતી_કોડ_ચલાવો
+
+
+class ટેસ્ટ_સ્ત્રોત_નકશો:
+    """
+    Source map: traceback remapping tests.
+    Verifies that errors raised during execution of Gujarati code
+    are attributed to the correct Gujarati line and show Gujarati source text.
+    """
+
+    def test_translation_result_has_line_map(self):
+        """TranslationResult carries a line_map dict."""
+        result = _અનુવાદક.ગુજરાતીથી_અંગ્રેજી_સ_નકશો("છાપો('નમસ્તે')")
+        assert isinstance(result, TranslationResult)
+        assert result.code.strip() == "print('નમસ્તે')"
+        assert isinstance(result.line_map, dict)
+        assert result.line_map.get(1) == 1  # identity for single-line code
+
+    def test_line_map_covers_all_lines(self):
+        """line_map has an entry for every generated line."""
+        code = "ક = 1\nખ = 2\nછાપો(ક + ખ)"
+        result = _અનુવાદક.ગુજરાતીથી_અંગ્રેજી_સ_નકશો(code)
+        n_generated = result.code.count('\n') + 1
+        for i in range(1, n_generated + 1):
+            assert i in result.line_map
+
+    @pytest.mark.parametrize("code, bad_line", [
+        # NameError on line 2 (undefined variable)
+        ("ક = 1\nછાપો(અવ્યાખ્યાયિત)\n", 2),
+        # ZeroDivisionError on line 1
+        ("છાપો(1 // 0)\n", 1),
+        # NameError inside a Gujarati def block — line 3
+        ("ડેફ foo():\n    x = 1\n    છાપો(undefined)\nfoo()\n", 3),
+    ])
+    def test_traceback_points_to_gujarati_line(self, code, bad_line):
+        """Error output must reference the correct Gujarati source line number."""
+        result = ગુજરાતી_કોડ_ચલાવો(code)
+        assert not result['સફળતા'], "Expected execution to fail"
+        assert f"લાઈન {bad_line}" in result['એરર'], (
+            f"Expected 'લાઈન {bad_line}' in error output, got:\n{result['એરર']}"
+        )
+
+    @pytest.mark.parametrize("code, expected_gujarati_text", [
+        # The error output should show the Gujarati source line, not 'print(undefined)'
+        ("છાપો(અવ્યાખ્યાયિત)\n", "છાપો(અવ્યાખ્યાયિત)"),
+    ])
+    def test_traceback_shows_gujarati_source_line(self, code, expected_gujarati_text):
+        """Error output must show the Gujarati source text, not the translated Python."""
+        result = ગુજરાતી_કોડ_ચલાવો(code)
+        assert not result['સફળતા']
+        assert expected_gujarati_text in result['એરર'], (
+            f"Expected Gujarati source text in error, got:\n{result['એરર']}"
+        )
+
+    def test_error_message_back_translates_keyword(self):
+        """NameError message should use the Gujarati keyword name, not the English one."""
+        # છાપો(ક્ષ) → NameError references 'print' internally, but should show 'છાપો'
+        result = ગુજરાતી_કોડ_ચલાવો("છાપો(ક્ષ)\n")
+        assert not result['સફળતા']
+        # The error message must contain the Gujarati name, not 'print'
+        assert 'print' not in result['એરર'], (
+            f"Error message still exposes English keyword:\n{result['એરર']}"
+        )

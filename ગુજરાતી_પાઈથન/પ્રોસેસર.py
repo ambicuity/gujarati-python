@@ -9,7 +9,7 @@ import traceback
 from typing import Any, Dict, Optional
 from io import StringIO
 
-from .અનુવાદક import કોડ_અનુવાદ_કરો, વેલિડેશન_કરો
+from .અનુવાદક import TranslationResult, કોડ_અનુવાદ_કરો, વેલિડેશન_કરો, _અનુવાદક
 from .ભૂલ_અનુવાદક import ભૂલ_અનુવાદક
 
 
@@ -50,8 +50,10 @@ class ગુજરાતી_પ્રોસેસર:
                 પરિણામ['એરર'] = '\n'.join(વેલિડેશન_એરર્સ)
                 return પરિણામ
             
-            # કોડ અનુવાદ કરો
-            અંગ્રેજી_કોડ = કોડ_અનુવાદ_કરો(ગુજરાતી_કોડ)
+            # કોડ અનુવાદ કરો (source map સાથે)
+            અનુવાદ_પરિણામ = _અનુવાદક.ગુજરાતીથી_અંગ્રેજી_સ_નકશો(ગુજરાતી_કોડ)
+            અંગ્રેજી_કોડ = અનુવાદ_પરિણામ.code
+            ગુજ_લાઇન_મેપ = અનુવાદ_પરિણામ.line_map
             
             # નેમસ્પેસ તૈયાર કરો
             એક્ઝિક્યુશન_નેમસ્પેસ = self.નેમસ્પેસ.copy()
@@ -83,16 +85,30 @@ class ગુજરાતી_પ્રોસેસર:
         except Exception as e:
             # એરરનું ગુજરાતીમાં અનુવાદ કરો
             exc_type, exc_value, exc_traceback = sys.exc_info()
-            ગુજરાતી_એરર = self.અનુવાદક.ગુજરાતી_એરર_મેળવો(exc_type, exc_value, exc_traceback)
-            
-            # ટ્રેસબેક ફોર્મેટ કરો (ફક્ત છેલ્લી લાઇન નહીં, પરંતુ વિગતવાર)
+            ગુજરાતી_એરર = self.અનુવાદક.ગુજરાતી_એરર_મેળવો(
+                exc_type, exc_value, exc_traceback,
+                ગુજરાતી_કોડ,
+                # ગુજ_લાઇન_મેપ may not exist if validation raised before translation
+                locals().get('ગુજ_લાઇન_મેપ', {}),
+            )
+
+            # ટ્રેસબેક ફોરમેટ કરો — source map વાપરીને ગુજરાતી લાઇન નંબર દેખાડો
             tb_list = traceback.extract_tb(exc_traceback)
             એરર_વિગત = ""
+            ગુજ_લાઇનસ = ગુજરાતી_કોડ.splitlines()
+            ગુજ_મેપ = locals().get('ગુજ_લાઇન_મેપ', {})
             for frame in tb_list:
                 # <string> વાળી ફાઈલ મતલબ આપણો એક્ઝિક્યુટ થયેલો કોડ
                 if frame.filename == "<string>":
-                    એરર_વિગત += f"  લાઈન {frame.lineno} માં:\n    {frame.line}\n"
-            
+                    # Remap generated Python line → original Gujarati line
+                    gpy_line_no = ગુજ_મેપ.get(frame.lineno, frame.lineno)
+                    # Show the Gujarati source text for that line
+                    if 0 < gpy_line_no <= len(ગુજ_લાઇનસ):
+                        original_text = ગુજ_લાઇનસ[gpy_line_no - 1]
+                    else:
+                        original_text = frame.line or ""
+                    એરર_વિગત += f"  લાઈન {gpy_line_no} માં:\n    {original_text}\n"
+
             if એરર_વિગત:
                 પરિણામ['એરર'] = f"{એરર_વિગત}\n{ગુજરાતી_એરર}"
             else:
