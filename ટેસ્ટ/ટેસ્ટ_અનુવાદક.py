@@ -245,6 +245,36 @@ for i in range(5):
         self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
 
 
+class ટેસ્ટ_ગોળ_કીવર્ડ(unittest.TestCase):
+    """
+    ગોળ → round નેટિવ મેપિંગ ટેસ્ટ
+    """
+
+    def setUp(self):
+        self.અનુવાદક = કીવર્ડ_અનુવાદક()
+
+    def test_ગોળ_translates_to_round(self):
+        """ગોળ → round અનુવાદ ટેસ્ટ"""
+        ગુજરાતી_કોડ = 'છાપો(ગોળ(3.7))'
+        અપેક્ષિત = 'print(round(3.7))'
+        પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
+        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+
+    def test_ગોળ_with_ndigits(self):
+        """ગોળ(સંખ્યા, અંકો) → round(number, ndigits) ટેસ્ટ"""
+        ગુજરાતી_કોડ = 'ગોળ(3.14159, 2)'
+        અપેક્ષિત = 'round(3.14159, 2)'
+        પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
+        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+
+    def test_રાઉન્ડ_still_works(self):
+        """રાઉન્ડ → round (backward compatibility) ટેસ્ટ"""
+        ગુજરાતી_કોડ = 'રાઉન્ડ(2.5)'
+        અપેક્ષિત = 'round(2.5)'
+        પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
+        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+
+
 class ટેસ્ટ_ગ્લોબલ_ફંક્શન્સ(unittest.TestCase):
     """
     ગ્લોબલ ફંક્શન્સના ટેસ્ટ

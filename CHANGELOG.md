@@ -7,6 +7,7 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 ## [Unreleased]
 
 ### Added
+- Native Gujarati keyword `ગોળ` mapped to `round` as a purely native alternative to the English loan-word `રાઉન્ડ`.
 - Initial project setup.
 - Basic mapping structure for Gujarati to Python translation.
 - Basic Next.js Web UI initialized.
