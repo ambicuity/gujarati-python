@@ -5,8 +5,13 @@ on:
     types: [closed]
 
 permissions:
+  contents: write
   issues: write
   pull-requests: write
+
+concurrency:
+  group: hall-of-fame-${{ github.repository }}
+  cancel-in-progress: false
 
 jobs:
   thank-contributor:
@@ -14,39 +19,131 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.pull_request.merged == true
     steps:
-      - uses: actions/github-script@v8
+      - name: Collect contributor metadata
+        id: metadata
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pr = context.payload.pull_request;
-            const author = pr.user.login;
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
+            const author = pr.user;
+            const isBot = author.type === 'Bot' || author.login.includes('[bot]');
 
-            // Skip bot PRs (dependabot, renovate, etc.)
-            if (author.includes('[bot]') || author === 'dependabot[bot]') {
-              console.log(`Skipping bot PR by ${author}`);
+            core.setOutput('skip', String(isBot));
+            core.setOutput('login', author.login);
+            core.setOutput('default_branch', context.payload.repository.default_branch);
+
+            if (isBot) {
+              console.log(`Skipping bot PR by ${author.login}`);
               return;
             }
 
-            // Check if this is the contributor's first merged PR
-            const { data: prs } = await github.rest.search.issuesAndPullRequests({
-              q: `repo:${owner}/${repo} author:${author} type:pr is:merged`,
+            const { data: user } = await github.rest.users.getByUsername({
+              username: author.login,
             });
 
-            const isFirstMerge = prs.total_count <= 1;
+            const { data: prs } = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${context.repo.owner}/${context.repo.repo} author:${author.login} type:pr is:merged`,
+            });
+
+            core.setOutput('name', user.name || user.login);
+            core.setOutput('avatar_url', user.avatar_url || author.avatar_url);
+            core.setOutput('profile', user.html_url || author.html_url);
+            core.setOutput('first_merge', String(prs.total_count <= 1));
+
+      - name: Checkout default branch
+        if: steps.metadata.outputs.skip != 'true'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ steps.metadata.outputs.default_branch }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        if: steps.metadata.outputs.skip != 'true'
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Update Hall of Fame
+        id: hall_of_fame
+        if: steps.metadata.outputs.skip != 'true'
+        env:
+          CONTRIBUTOR_LOGIN: ${{ steps.metadata.outputs.login }}
+          CONTRIBUTOR_NAME: ${{ steps.metadata.outputs.name }}
+          CONTRIBUTOR_AVATAR_URL: ${{ steps.metadata.outputs.avatar_url }}
+          CONTRIBUTOR_PROFILE: ${{ steps.metadata.outputs.profile }}
+        run: |
+          python3 scripts/hall_of_fame.py upsert \
+            --config .all-contributorsrc \
+            --hall-of-fame CONTRIBUTORS.md \
+            --owner "${{ github.repository_owner }}" \
+            --repo "${{ github.event.repository.name }}" \
+            --login "$CONTRIBUTOR_LOGIN" \
+            --name "$CONTRIBUTOR_NAME" \
+            --avatar-url "$CONTRIBUTOR_AVATAR_URL" \
+            --profile "$CONTRIBUTOR_PROFILE" \
+            --contributions-json '["code"]' >> "$GITHUB_OUTPUT"
+
+      - name: Commit Hall of Fame update
+        id: commit
+        if: steps.metadata.outputs.skip != 'true' && steps.hall_of_fame.outputs.changed == 'true'
+        env:
+          CONTRIBUTOR_LOGIN: ${{ steps.metadata.outputs.login }}
+          DEFAULT_BRANCH: ${{ steps.metadata.outputs.default_branch }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .all-contributorsrc CONTRIBUTORS.md
+          git commit -m "docs: add @$CONTRIBUTOR_LOGIN to Hall of Fame"
+          git fetch origin "$DEFAULT_BRANCH"
+          git rebase "origin/$DEFAULT_BRANCH"
+          git push origin HEAD:"$DEFAULT_BRANCH"
+
+      - name: Thank contributor
+        if: steps.metadata.outputs.skip != 'true'
+        uses: actions/github-script@v8
+        env:
+          CONTRIBUTOR_LOGIN: ${{ steps.metadata.outputs.login }}
+          FIRST_MERGE: ${{ steps.metadata.outputs.first_merge }}
+          CHANGED: ${{ steps.hall_of_fame.outputs.changed }}
+          ADDED: ${{ steps.hall_of_fame.outputs.added }}
+          NEW_CONTRIBUTIONS: ${{ steps.hall_of_fame.outputs.new_contributions }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const author = process.env.CONTRIBUTOR_LOGIN;
+            const isFirstMerge = process.env.FIRST_MERGE === 'true';
+            const changed = process.env.CHANGED === 'true';
+            const added = process.env.ADDED === 'true';
+            const newContributions = process.env.NEW_CONTRIBUTIONS
+              ? process.env.NEW_CONTRIBUTIONS.split(',').filter(Boolean)
+              : [];
+            const hallOfFameLink =
+              `https://github.com/${context.repo.owner}/${context.repo.repo}/blob/` +
+              `${context.payload.repository.default_branch}/CONTRIBUTORS.md`;
 
             let message;
-            if (isFirstMerge) {
+            if (isFirstMerge && added) {
               message = `🎉 **Congratulations on your first merged PR, @${author}!** 🎉\n\n` +
-                `Welcome to the contributors of ગુજરાતી પાઈથન (Gujarati Python)! Your change is now live.\n\n` +
-                `A maintainer will add you to our [Contributors Hall of Fame](CONTRIBUTORS.md) shortly. Thank you for making this project better! 🙏`;
+                `Welcome to the contributors of ગુજરાતી પાઈથન (Gujarati Python)! ` +
+                `You were automatically added to our [Contributors Hall of Fame](${hallOfFameLink}). Thank you for making this project better! 🙏`;
+            } else if (changed) {
+              const detail = newContributions.length > 0
+                ? ` Updated credits: ${newContributions.join(', ')}.`
+                : ` Your Hall of Fame entry was refreshed.`;
+              message = `✅ Merged! Thanks again, @${author}. Your contribution is live.${detail}\n\n` +
+                `See the latest Hall of Fame here: [CONTRIBUTORS.md](${hallOfFameLink}).`;
+            } else if (isFirstMerge) {
+              message = `🎉 **Congratulations on your first merged PR, @${author}!** 🎉\n\n` +
+                `Welcome to the contributors of ગુજરાતી પાઈથન (Gujarati Python)! ` +
+                `You were already listed in our [Contributors Hall of Fame](${hallOfFameLink}).`;
             } else {
               message = `✅ Merged! Thanks again, @${author}. Your contribution is live. 🚀`;
             }
 
             await github.rest.issues.createComment({
-              owner, repo,
-              issue_number: pr.number,
-              body: message
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: message,
             });
