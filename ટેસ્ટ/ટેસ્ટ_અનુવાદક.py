@@ -14,6 +14,7 @@ import unittest
 # પ્રોજેક્ટ પાથ ઉમેરો
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+from ગુજરાતી_પાઈથન import ગુજરાતી_કોડ_ચલાવો
 from ગુજરાતી_પાઈથન.અનુવાદક import કીવર્ડ_અનુવાદક, કોડ_અનુવાદ_કરો, વેલિડેશન_કરો
 
 
@@ -186,7 +187,42 @@ def test():
         
         પરિણામ = self.અનુવાદક.અંગ્રેજીથી_ગુજરાતી(અંગ્રેજી_કોડ)
         self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
-    
+
+    def test_round_alias_forward_translation(self):
+        """
+        ગોળ ફંક્શન round() માં અનુવાદ થાય છે
+        """
+        ગુજરાતી_કોડ = "ગોળ(2.5)"
+        અપેક્ષિત = "round(2.5)"
+
+        પરિણામ = self.અનુવાદક.ગુજરાતીથી_અંગ્રેજી(ગુજરાતી_કોડ)
+        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+
+    def test_round_alias_reverse_translation(self):
+        """
+        round() નો કેનોનિકલ ગુજરાતી અનુવાદ ગોળ રહે છે
+        """
+        અંગ્રેજી_કોડ = "round(2.5)"
+        અપેક્ષિત = "ગોળ(2.5)"
+
+        પરિણામ = self.અનુવાદક.અંગ્રેજીથી_ગુજરાતી(અંગ્રેજી_કોડ)
+        self.assertEqual(પરિણામ.strip(), અપેક્ષિત.strip())
+
+    def test_round_alias_execution_matches_python_round(self):
+        """
+        ગોળ ફંક્શન Python round() જેવી જ વર્તણૂક રાખે છે
+        """
+        test_cases = [
+            ("અ = ગોળ(2.5)\nછાપો(અ)\n", f"{round(2.5)}\n"),
+            ("અ = ગોળ(12.5, -1)\nછાપો(અ)\n", f"{round(12.5, -1)}\n"),
+        ]
+
+        for ગુજરાતી_કોડ, અપેક્ષિત_આઉટપુટ in test_cases:
+            with self.subTest(ગુજરાતી_કોડ=ગુજરાતી_કોડ):
+                પરિણામ = ગુજરાતી_કોડ_ચલાવો(ગુજરાતી_કોડ)
+                self.assertTrue(પરિણામ['સફળતા'], પરિણામ['એરર'])
+                self.assertEqual(પરિણામ['આઉટપુટ'], અપેક્ષિત_આઉટપુટ)
+
     def test_validation(self):
         """
         વેલિડેશનનું ટેસ્ટ
