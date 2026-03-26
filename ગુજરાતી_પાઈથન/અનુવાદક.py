@@ -435,15 +435,17 @@ class કીવર્ડ_અનુવાદક:
             અનુવાદિત_કોડ = re.sub(પેટર્ન, ઇંગ_મોડ + '.', અનુવાદિત_કોડ)
 
         # Standalone module names in import lines
+        new_lines = []
         for line in અનુવાદિત_કોડ.split('\n'):
             if 'import ' in line or 'ઈમ્પોર્ટ' in line:
+                processed_line = line
                 for ગુજ_મોડ, ઇંગ_મોડ in sorted_modules:
-                    if ગુજ_મોડ in line:
-                        new_line = line.replace(ગુજ_મોડ, ઇંગ_મોડ)
-                        અનુવાદિત_કોડ = અનુવાદિત_કોડ.replace(
-                            line, new_line, 1
-                        )
-                        line = new_line  # update for next iteration
+                    if ગુજ_મોડ in processed_line:
+                        processed_line = processed_line.replace(ગુજ_મોડ, ઇંગ_મોડ)
+                new_lines.append(processed_line)
+            else:
+                new_lines.append(line)
+        અનુવાદિત_કોડ = '\n'.join(new_lines)
 
         # 4. Protect string literals (but translate keywords in f-strings)
         સ્ટ્રિંગ_પ્લેસહોલ્ડર્સ = {}

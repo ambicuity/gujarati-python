@@ -61,15 +61,15 @@ jobs:
 
     - name: મૂળભૂત ટેસ્ટ (Run basic tests)
       run: |
-        python -m unittest ટેસ્ટ.ટેસ્ટ_અનુવાદક -v
-        python -m unittest ટેસ્ટ.પ્લેટફોર્મ_ટેસ્ટ -v
+        python -m pytest ટેસ્ટ/ટેસ્ટ_અનુવાદક.py -v
+        python -m pytest ટેસ્ટ/પ્લેટફોર્મ_ટેસ્ટ.py -v
         # Run new agent tests
-        python -m unittest tests.test_agents -v
+        python -m pytest tests/test_agents.py -v
       shell: bash
 
     - name: ઉદાહરણ ટેસ્ટ (Run example tests)  
       run: |
-        python -m unittest ટેસ્ટ.ઉદાહરણ_ટેસ્ટ -v
+        python -m pytest ટેસ્ટ/ઉદાહરણ_ટેસ્ટ.py -v
       shell: bash
 
     - name: Agent Integration Test
@@ -81,10 +81,10 @@ jobs:
     - name: બધા ટેસ્ટ એકસાથે (Run all tests together)
       run: |
         echo "Running individual test modules..."
-        python -m unittest ટેસ્ટ.ટેસ્ટ_અનુવાદક -v
-        python -m unittest ટેસ્ટ.પ્લેટફોર્મ_ટેસ્ટ -v  
-        python -m unittest ટેસ્ટ.ઉદાહરણ_ટેસ્ટ -v
-        python -m unittest tests.test_agents -v
+        python -m pytest ટેસ્ટ/ટેસ્ટ_અનુવાદક.py -v
+        python -m pytest ટેસ્ટ/પ્લેટફોર્મ_ટેસ્ટ.py -v  
+        python -m pytest ટેસ્ટ/ઉદાહરણ_ટેસ્ટ.py -v
+        python -m pytest tests/test_agents.py -v
       shell: bash
 
     - name: કમાંડ લાઇન ઇન્ટરફેસ ટેસ્ટ (Test CLI interface)
