@@ -11,3 +11,4 @@ This changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.
 - Initial project setup.
 - Basic mapping structure for Gujarati to Python translation.
 - Basic Next.js Web UI initialized.
+- CLI version flags: `-v`, `--version`, and `--આવૃત્તિ` in `મુખ્ય.py` (Issue #34).
