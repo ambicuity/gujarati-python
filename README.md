@@ -66,6 +66,24 @@ gujarati-python
     પરિણામ = ઉમેરો(સંખ્યા1, સંખ્યા2)
     છાપો(f"પરિણામ છે: {પરિણામ}")
 ```
+## ⏰ Time Module (સમય મોડ્યુલ)
+
+Python નો `time` module સમય સાથે સંબંધિત operations કરવા માટે ઉપયોગી છે, જેમ કે current time મેળવવો, readable format માં time બતાવવો અને delay આપવો.
+
+### Example:
+
+```python
+import time
+
+# વર્તમાન સમય (timestamp)
+print(time.time())
+
+# વાંચવા યોગ્ય સમય
+print(time.ctime())
+
+# 2 સેકન્ડ માટે program રોકો
+time.sleep(2)
+print("2 સેકન્ડ પછી ચલાવવામાં આવ્યું")
 
 ## 🔤 કીવર્ડ ટ્રાન્સલેશન (Keyword Translation)
 
