@@ -73,17 +73,17 @@ Python નો `time` module સમય સાથે સંબંધિત operati
 ### Example:
 
 ```python
-import time
+ઈમ્પોર્ટ સમય
 
 # વર્તમાન સમય (timestamp)
-print(time.time())
+છાપો(સમય.સમય())
 
 # વાંચવા યોગ્ય સમય
-print(time.ctime())
+છાપો(સમય.ctime())
 
-# 2 સેકન્ડ માટે program રોકો
-time.sleep(2)
-print("2 સેકન્ડ પછી ચલાવવામાં આવ્યું")
+# 1 સેકન્ડ માટે program રોકો
+સમય.ઊંઘો(1)
+છાપો("1 સેકન્ડ પછી ચલાવવામાં આવ્યું")
 ```
 ## 🔤 કીવર્ડ ટ્રાન્સલેશન (Keyword Translation)
 
