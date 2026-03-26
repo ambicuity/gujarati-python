@@ -80,11 +80,14 @@ class ભૂલ_અનુવાદક:
         try:
             from .અનુવાદક import _અનુવાદક
             for eng_kw, guj_kw in _અનુવાદક.રિવર્સ_મેપ.items():
-                # Match 'keyword' with surrounding quotes inside the message
-                quoted = f"'{eng_kw}'"
-                if quoted in ગુજરાતી_મેસેજ:
-                    ગુજરાતી_મેસેજ = ગુજરાતી_મેસેજ.replace(quoted, f"'{guj_kw}'")
-        except Exception:
+                # Match both 'keyword' and "keyword" forms in Python errors.
+                ગુજરાતી_મેસેજ = ગુજરાતી_મેસેજ.replace(
+                    f"'{eng_kw}'", f"'{guj_kw}'"
+                )
+                ગુજરાતી_મેસેજ = ગુજરાતી_મેસેજ.replace(
+                    f"\"{eng_kw}\"", f"'{guj_kw}'"
+                )
+        except (ImportError, AttributeError):
             pass  # Never crash the error reporter itself
         
         return f"{ગુજરાતી_નામ}: {ગુજરાતી_મેસેજ}"

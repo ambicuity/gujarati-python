@@ -681,13 +681,14 @@ class કીવર્ડ_અનુવાદક:
 
             while j < len(tokens) and word_idx < len(remaining):
                 t = tokens[j]
-                # Skip whitespace-only tokens (NL, NEWLINE, INDENT, etc.)
+                # Keep multi-word matches on the same logical line only.
+                # Crossing NL/NEWLINE/INDENT can incorrectly merge words
+                # from different lines (e.g. "નહીં" + next-line "તો").
                 if t.type in (
                     token.NL, token.NEWLINE, token.INDENT,
                     token.DEDENT, token.COMMENT,
                 ):
-                    j += 1
-                    continue
+                    break
                 if t.type == token.NAME and t.string == remaining[word_idx]:
                     matched_indices.append(j)
                     word_idx += 1

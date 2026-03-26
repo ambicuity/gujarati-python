@@ -322,6 +322,13 @@ class ટેસ્ટ_સ્ત્રોત_નકશો:
         for i in range(1, n_generated + 1):
             assert i in result.line_map
 
+    def test_multi_word_keyword_does_not_cross_lines(self):
+        """Multi-word keywords must not be formed by joining words across lines."""
+        code = "જો સાચું:\n    નહીં\n    તો:\n        છાપો('x')\n"
+        translated = _અનુવાદક.ગુજરાતીથી_અંગ્રેજી(code)
+        assert "else" not in translated
+        assert "તો" in translated
+
     @pytest.mark.parametrize("code, bad_line", [
         # NameError on line 2 (undefined variable)
         ("ક = 1\nછાપો(અવ્યાખ્યાયિત)\n", 2),
@@ -359,3 +366,13 @@ class ટેસ્ટ_સ્ત્રોત_નકશો:
         assert 'print' not in result['એરર'], (
             f"Error message still exposes English keyword:\n{result['એરર']}"
         )
+
+    def test_error_message_back_translates_double_quoted_keyword(self):
+        """Keyword back-translation should handle double-quoted Python names too."""
+        from ગુજરાતી_પાઈથન.ભૂલ_અનુવાદક import ભૂલ_અનુવાદક
+        msg = 'name "print" is not defined'
+        translated = ભૂલ_અનુવાદક().ગુજરાતી_એરર_મેળવો(
+            NameError, NameError(msg), None
+        )
+        assert '"print"' not in translated
+        assert "'છાપો'" in translated
