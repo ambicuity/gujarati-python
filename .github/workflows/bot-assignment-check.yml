@@ -24,6 +24,13 @@ jobs:
             const prNumber = pr.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            const isForkPr = pr.head?.repo?.fork === true;
+
+            // Fork PRs cannot reliably satisfy assignee/comment workflow due permission limits.
+            if (isForkPr) {
+              console.log('Fork PR detected — skipping assignment check.');
+              return;
+            }
 
             // Maintainer and bots are always allowed
             const EXEMPT_USERS = ['ambicuity', 'dependabot[bot]', 'github-actions[bot]'];
