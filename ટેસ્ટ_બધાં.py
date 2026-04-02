@@ -10,6 +10,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+from અનુવાદક import કોડ_અનુવાદ_કરો
+
+
 import pytest
 
 
@@ -76,3 +79,15 @@ def test_translate_simple_demo() -> None:
     result = _run_cli(["--translate", "ઉદાહરણો/સરળ_ડેમો.py"])
     assert result.returncode == 0, result.stderr
     assert "print(" in result.stdout
+
+
+def test_turtle_વર્તુળ_mapping():
+   
+    code = """
+            t = turtle.Turtle()
+            t.વર્તુળ(50)
+           """
+
+    translated = કોડ_અનુવાદ_કરો(code)
+
+    assert "turtle.circle(50)" in translated
