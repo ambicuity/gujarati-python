@@ -10,7 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from અનુવાદક import કોડ_અનુવાદ_કરો
+from ગુજરાતી_પાઈથન.અનુવાદક import કોડ_અનુવાદ_કરો
 
 
 import pytest
