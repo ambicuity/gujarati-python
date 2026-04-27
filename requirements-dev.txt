@@ -3,7 +3,7 @@
 
 # ટેસ્ટિંગ (Testing)
 pytest>=7.0.0
-pytest-cov>=4.0.0
+pytest-cov>=7.1.0
 
 # કોડ ક્વાલિટી (Code Quality)  
 flake8>=5.0.0
