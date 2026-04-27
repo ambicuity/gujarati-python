@@ -10,7 +10,7 @@ flake8>=5.0.0
 black>=22.0.0
 
 # ટાઇપ ચેકિંગ (Type Checking)
-mypy>=1.0.0
+mypy>=1.19.1
 
 # ડોક્યુમેન્ટેશન (Documentation)
 # sphinx>=5.0.0  # વૈકલ્પિક
