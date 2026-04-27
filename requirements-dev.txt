@@ -2,7 +2,7 @@
 # Development dependencies for ગુજરાતી પાઈથન project
 
 # ટેસ્ટિંગ (Testing)
-pytest>=7.0.0
+pytest>=8.4.2
 pytest-cov>=7.1.0
 
 # કોડ ક્વાલિટી (Code Quality)  
