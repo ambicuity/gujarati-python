@@ -18,7 +18,7 @@ jobs:
     if: github.event.label.name == 'good first issue candidate'
     steps:
       - name: Post maintainer review request
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
