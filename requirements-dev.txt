@@ -7,7 +7,7 @@ pytest-cov>=7.1.0
 
 # કોડ ક્વાલિટી (Code Quality)  
 flake8>=7.3.0
-black>=25.11.0
+black>=26.5.1
 
 # ટાઇપ ચેકિંગ (Type Checking)
 mypy>=1.19.1
